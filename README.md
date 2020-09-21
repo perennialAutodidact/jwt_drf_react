@@ -133,6 +133,8 @@ jwt_drf_react/
 ### <p id="django-settings">main/settings.py</p>
 [Top &#8593;](#top)
 
+With the exception of the `DEBUG` and `SECRET_KEY` settings, all of the following code is meant to be added to the existing Django settings. This is **not** a complete `settings.py` file on its own.
+
 ```python
 import decouple  # add
 
