@@ -9,8 +9,8 @@ verify_ssl = true
 django = "==3.1.1"
 djangorestframework = "==3.11.1"
 django-cors-headers = "==3.5.0"
-python-decouple = "==3.3"
 pyjwt = "==1.5.3"
+python-decouple = "*"
 
 [requires]
 python_version = "3.8"

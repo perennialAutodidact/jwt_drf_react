@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import User, RefreshToken
+
+# register models in admin
+admin.site.register([User, RefreshToken])
