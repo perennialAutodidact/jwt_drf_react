@@ -4,33 +4,33 @@ Last updated: 9/20/2020
 
 This is an example of using a custom Django REST Framework (DRF) authentication class to access protected API routes from a React application.
 
-Authentication will require three items:
-
-1. Django's Cross-Site Request Forgery (CSRF) Token
-2. JSON Web Token (JWT) Access Token
-3. JWT Refresh Token
-
-
 This guide is based on:
 
 - [Django Rest Framework custom JWT authentication](https://dev.to/a_atalla/django-rest-framework-custom-jwt-authentication-5n5) by Ahmed Atalla
 
 - [The Ultimate Guide to handling JWTs on frontend clients](https://hasura.io/blog/best-practices-of-using-jwt-with-graphql/) by Hasura
 
-
-
 ## <p id="top">Table of contents</p>
 
 - ## [Setup](#setup)
+  - [Overview](#overview)
   - [Environment Variables](#environment-variables)
 - ## [Backend](#backend)
+
   - ### [Dependencies](#backend-dependencies)
+
   - ### [Create Django Project](#create-django-project)
+  
     - [settings.py](#django-settings)
+    - [urls.py](#django-urls)
     - [Users App](#users-app)
       - [models.py](#users-models)
       - [admin.py](#users-admin)
       - [serializers.py](#sers-serializers)
+      - [utils.py](#users-utils)
+      - [authentication.py](#users-authentication)
+      - [urls.py](#users-urls)
+      - [views.py](#users-views)
 - [Frontend](#frontend)
 
 ---
@@ -47,6 +47,39 @@ Create a folder `jwt_drf_react` for the project. Inside create a folder for `bac
 ~/ $ mkdir jwt_def_react && cd mkdir jwt_def_react
 jwt_def_react/ $ mkdir backend frontend
 ```
+
+## <p id="overview">Overview</p>
+
+[Top &#8593;](#top)
+
+Authentication will require three items:
+
+1. Django's Cross-Site Request Forgery (CSRF) Cookie
+
+    - Standard Django CSRF cookie
+    - Sent with each request
+
+2. JSON Web Token (JWT) Access Token
+
+    - Short exipiration
+    - Stored in app's state
+    - Used to access protected routes
+
+3. JWT Refresh Token
+
+    - Longer expiration
+    - Used to request access tokens
+    - Stored in an HTTPOnly cookie
+    - Associated with foreign key to a user in the database
+    - Deleted from database on logout or exipration
+
+When a user registers or logs in, they will be assigned a refresh token and and access token. When request is made for protected data, the access token will be passed to the server via the `Authorization` HTTP Header.
+
+If the access token is expired when sent, the refresh token is checked for validity. If the refresh token hasn't expired, a new access token is returned and the original request is repeated.
+
+If the token isn't expired and the user with the id of the token's `user_id` is the is authorized to access the data, the data is returned.
+
+The CSRF cookie will also be attached to each request and its existence and validity will be checked.
 
 ## <p id="environment-variables">Environment Variables</p>
 [Top &#8593;](#top)
@@ -216,6 +249,28 @@ ALLOWED_HOSTS = [
 
 ---
 
+### <p id="django-urls">main/urls.py</p>
+
+[Top &#8593;](#top)
+
+We need to include the urls for the user app in our main urls. You can create any path you'd like for these urls, just make sure they're consistent when making calls to your API endpoints.
+
+```python
+# main/urls.py
+from django.contrib import admin
+from django.urls import path, include # add
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    # include user app urls
+    path('users/', include('users.urls')), # add
+
+    # add login capability to browsable REST framework api, if desired
+    path('api-auth/', include('rest_framework.urls')), # add (optional)
+]
+```
+
 ### <p id="users-app">Users App</p>
 [Top &#8593;](#top)
 
@@ -321,9 +376,10 @@ Login to the admin panel to ensure your models are showing up.
 
 [Top &#8593;](#top)
 
-Create `serializers.py`. We'll have to overwrite the `create()` and `update()` methods for the `UserCreateSerializer` class in order to encrypt the user's password string.
+Create a file called `serializers.py` which will contain the Django REST serializers for our custom User model. We'll have to overwrite the `create()` and `update()` methods for the `UserCreateSerializer` class in order to encrypt the user's password string.
 
 ```python
+# users/serializers.py
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
@@ -366,5 +422,205 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'last_login',
             'date_joined',
         ]
+```
+
+---
+
+### <p id="users-utils">users/utils.py</p>
+
+[Top &#8593;](#top)
+
+We're going to need a few helper functions for generating JWT access and refresh tokens. These will be defined in `users/utils.py`
+
+```python
+# users/utils.py
+
+# users/utils.py
+import jwt
+import datetime
+from django.conf import settings
+
+from users.models import User, RefreshToken
+
+def generate_access_token(user):
+    '''Generate JWT access token for the user'''
+
+    access_token_payload = {
+        # id from User instance
+        'user_id': user.id,
+         # expiration date
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=5),
+        # initiated at date
+        'iat': datetime.datetime.utcnow(),
+        # additional items if desired
+        # ...
+    }
+
+    access_token = jwt.encode(
+        access_token_payload,
+        settings.SECRET_KEY,
+        algorithm='HS256'
+    )
+
+    return access_token
+
+
+def generate_refresh_token(user):
+    '''Generate JWT refresh token for the user'''
+    refresh_token_payload = {
+        # id from User instance
+        'user_id': user.id,
+         # expiration date
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
+        # initiated at date
+        'iat': datetime.datetime.utcnow(),
+        # additional items if desired
+        # ...
+    }
+
+    # encode payload and decode jwt into a string
+    refresh_token = jwt.encode(
+        refresh_token_payload,
+        settings.REFRESH_TOKEN_SECRET,
+        algorithm='HS256'
+    ).decode(encoding='utf-8')
+
+    # convert refresh_token bytes object into utf-8 string
+    return refresh_token
+
+
+# Thanks to Ahmed Atalla for this code
+# https://dev.to/a_atalla/django-rest-framework-custom-jwt-authentication-5n5
+```
+
+---
+
+## <p id="users-authentication">users/authenticaoin.py</p>
+
+[Top &#8593;](#top)
+
+Now it's time to implement our custom authentication class. This will check the HTTP request for a CSRF Cookie and `Authorization` HTTP Header. Execptions will be raised if the CSRF Cookie is missing or invalid or if the the `Authorization` header is missing or the access token is expired.
+
+```python
+import jwt
+from rest_framework.authentication import BaseAuthentication
+from django.middleware.csrf import CsrfViewMiddleware
+from rest_framework import exceptions
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from rest_framework.response import Response
+from rest_framework import status
+
+
+class CSRFCheck(CsrfViewMiddleware):
+    def _reject(self, request, reason):
+        # Return the failure reason instead of an HttpResponse
+        return reason
+
+
+class SafeJWTAuthentication(BaseAuthentication):
+    '''
+        custom authentication class for DRF and JWT
+        https://github.com/encode/django-rest-framework/blob/master/rest_framework/authentication.py
+    '''
+
+    def authenticate(self, request):
+        User = get_user_model()
+        authorization_heaader = request.headers.get('Authorization')
+
+        if not authorization_heaader:
+            return None
+        try:
+            # header = 'Token xxxxxxxxxxxxxxxxxxxxxxxx'
+            access_token = authorization_heaader.split(' ')[1]
+            payload = jwt.decode(
+                access_token, settings.SECRET_KEY, algorithms=['HS256'])
+
+        # if token is expired
+        except jwt.ExpiredSignatureError:
+            raise exceptions.AuthenticationFailed(
+                detail={
+                    'msg': 'access_token_expired',
+                }
+            )
+        # if token doesn't exist
+        except IndexError:
+            raise exceptions.AuthenticationFailed('Token prefix missing')
+
+        # get the user associated with the token
+        user = User.objects.filter(id=payload['user_id']).first()
+        if user is None:
+            raise exceptions.AuthenticationFailed('User not found')
+
+        if not user.is_active:
+            raise exceptions.AuthenticationFailed('user is inactive')
+
+        # check CSRF Cookie
+        self.enforce_csrf(request)
+
+        # return the authenticated user object
+        return (user, None)
+
+    def enforce_csrf(self, request):
+        """
+        Enforce CSRF validation
+        """
+        check = CSRFCheck()
+        # populates request.META['CSRF_COOKIE'], which is used in process_view()
+        check.process_request(request)
+        reason = check.process_view(request, None, (), {})
+        if reason:
+            # CSRF failed, bail with explicit error message
+            raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
+
+# Thanks to Ahmed Atalla for this code
+# https://dev.to/a_atalla/django-rest-framework-custom-jwt-authentication-5n5
+```
+
+## <p id="users-urls">users/urls.py</p>
+
+[Top &#8593;](#top)
+
+Let's create our URLs for our API endpoints.
+
+- /
+  - POST: Create new users and generate tokens
+- auth/
+  - GET: Get the user object associated with the token
+  - POST: Submit credentials to login user. Generate tokens.
+- /:id
+  - GET: View details of user with given id
+  - POST: Update user details
+- /token
+  - GET: Generate new access tokens if refresh token cookie is valid
+- logout/
+  - GET: Delete the refresh token from database and client cookie
+
+Create `users/urls.py`
+
+```python
+# users/urls.py
+
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path('', views.register), # create
+    path('auth/', views.auth), # login/get logged in user
+    path('token/', views.extend_token), # request new access tokens
+    path('<int:pk>/', views.user_detail), # read/update
+    path('logout/', views.logout), # delete tokens
+]
+```
+
+## <p id="users-views">users/views.py</p>
+
+[Top &#8593;](#top)
+
+Now we're ready to create some API views. We will use function-based views with REST Framework decorators.
+
+```python
+
 ```
 
