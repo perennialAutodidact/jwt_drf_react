@@ -495,7 +495,7 @@ def generate_refresh_token(user):
 
 ---
 
-## <p id="users-authentication">users/authenticaoin.py</p>
+## <p id="users-authentication">users/authentication.py</p>
 
 [Top &#8593;](#top)
 
@@ -540,7 +540,7 @@ class SafeJWTAuthentication(BaseAuthentication):
         except jwt.ExpiredSignatureError:
             raise exceptions.AuthenticationFailed(
                 detail={
-                    'msg': 'access_token_expired',
+                    'msg': 'Access token expired',
                 }
             )
         # if token doesn't exist
@@ -581,19 +581,20 @@ class SafeJWTAuthentication(BaseAuthentication):
 
 [Top &#8593;](#top)
 
-Let's create our URLs for our API endpoints.
+Let's create our URLs for our API endpoints. The 'users' prefix was added in `main/urls.py` so our paths in `users/urls.py` will contain everything after `users/`.
 
-- /
+- users/
   - POST: Create new users and generate tokens
-- auth/
-  - GET: Get the user object associated with the token
+- users/login/
   - POST: Submit credentials to login user. Generate tokens.
-- /:id
+- users/auth/ - protected
+  - GET: Get the user object associated with the token
+- users/:id/ - protected
   - GET: View details of user with given id
   - POST: Update user details
-- /token
+- users/token/
   - GET: Generate new access tokens if refresh token cookie is valid
-- logout/
+- users/logout/
   - GET: Delete the refresh token from database and client cookie
 
 Create `users/urls.py`

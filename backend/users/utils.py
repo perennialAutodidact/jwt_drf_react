@@ -21,7 +21,7 @@ def generate_access_token(user):
         access_token_payload,
         settings.SECRET_KEY,
         algorithm='HS256'
-    )
+    ).decode(encoding='utf-8')
 
     return access_token
 

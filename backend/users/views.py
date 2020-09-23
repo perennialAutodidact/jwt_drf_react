@@ -24,6 +24,7 @@ from .authentication import SafeJWTAuthentication
 def register(request):
     '''Validate request POST data and create new User objects in database
     Return refresh and access tokens on successful registration'''
+    # create response object
     response = Response()
 
     # serialize request JSON data
@@ -37,7 +38,7 @@ def register(request):
         access_token = generate_access_token(new_user)
         refresh_token = generate_refresh_token(new_user)
 
-        # attach the access token to the response 
+        # attach the access token to the response data
         # and set the response status code to 201
         response.data = {'accessToken':access_token }
         response.status_code = status.HTTP_201_CREATED
@@ -46,9 +47,9 @@ def register(request):
         response.set_cookie(
             key='refreshtoken',
             value=refresh_token,
-            httponly=True,
+            httponly=True, # to help prevent XSS
+            samesite='strict', # to help prevent XSS
             domain='localhost', # change in production
-            samesite='strict',
             # secure=True # for https connections only
         )
 
@@ -58,31 +59,199 @@ def register(request):
 
     # if the serialized data is NOT valid
     # send a response with error messages and status code 400
-    
-        # create a single list of all serializer errors
-    error_keys = new_user_serializer.errors.keys()
-    errors = map(
-        lambda key: ','.join(new_user_serializer.errors.get(key)),
-        error_keys
-    )
-    
-    response.data = { 'errors': errors }
+    response.data = { 'error': [msg for msg in new_user_serializer.errors.values()]}
     response.status_code = status.HTTP_400_BAD_REQUEST
     # return failed response
     return response
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    '''
+    POST: Validate User credentials and 
+    generate refresh and access tokens
+    '''
+    response = Response()
+    username = request.data.get('username')
+    password = request.data.get('password')
 
-# def auth(request):
-#     '''
-#     GET: Get the User associated with an access token
-#     POST: "Login" - Validate User credentials and generate access token
-#     '''
-#     pass
+    if username is None or password is None:
+        response.data = {'msg': 'Username and password required.'}
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return response
 
-# def extend_token(request):
-#     '''Return new access token if request's 
-#     refresh token cookie is valid'''
-#     pass
+    user = User.objects.filter(username=username).first()
+
+    if user is None or not user.check_password(password):
+        response.data = {
+            'msg': 'Incorrect username or password'
+        }
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return response
+
+    # generate access and refresh tokens for the current user
+    access_token = generate_access_token(user)
+    refresh_token = generate_refresh_token(user)
+
+    try:
+        # if the user has a refresh token in the db,
+        # get the old token
+        old_refresh_token = RefreshToken.objects.get(user=user.id)
+        # delete the old token
+        old_refresh_token.delete()
+        # generate new token
+        RefreshToken.objects.create(user=user, token=refresh_token)
+
+    except RefreshToken.DoesNotExist:
+        # assign a new refresh token to the current user
+        RefreshToken.objects.create(user=user, token=refresh_token)
+
+    # create refreshtoken cookie
+    response.set_cookie(
+        key='refreshtoken', # cookie name
+        value=refresh_token, # cookie value
+        httponly=True, # to help prevent XSS
+        samesite='strict', # to help prevent XSS
+        domain='localhost', # change in production
+        # secure=True # for https connections only
+    )
+
+    response.data = {
+        'accessToken': access_token
+    }
+    response.status_code = status.HTTP_200_OK
+    return response
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([SafeJWTAuthentication])
+def auth(request):
+    # create response object
+    response = Response()
+
+    # Get the access token from headers
+    access_token = request.headers.get('Authorization').split(' ')[1]
+
+    # decode token payload
+    payload = jwt.decode(
+        access_token,
+        settings.SECRET_KEY,
+        algorithms=['HS256']
+    )
+
+    # get the user with the same id as the token's user_id
+    user = User.objects.filter(id=payload.get('user_id')).first()
+    
+    if user is None:
+        response.data = {'msg':'User not found'}
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return response
+    
+    if not user.is_active:
+        response.data = {'msg':'User not active'}
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return response
+
+    # serialize the User object and attach to response data
+    serialized_user = UserDetailSerializer(instance=user)
+    response.data = {'user':serialized_user.data}
+
+    return response
+
+@api_view(['GET'])
+@permission_classes([])
+def extend_token(request):
+    '''Return new access token if request's 
+    refresh token cookie is valid'''
+    # create response object
+    response = Response()
+
+    # get the refresh token cookie
+    refresh_token = request.COOKIES.get('refreshtoken')
+
+    # if the refresh token doesn't exist
+    # return 401 - Unauthorized
+    if refresh_token is None:
+        response.data = {
+            'msg':'Authentication credentials were not provided'
+        }
+
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return response
+    
+    # if a token is found,
+    # try to decode it
+    try:
+        payload = jwt.decode(
+            refresh_token,
+            settings.REFRESH_TOKEN_SECRET,
+            algorithms=['HS256']
+        )
+    
+    # if the token is expired, delete it from the database
+    # return 401 Unauthorized
+    except jwt.ExpiredSignatureError:
+        # find the expired token in the database
+        expired_token = RefreshToken.objects.filter(token=refresh_token).first()
+        
+        # delete the old token
+        expired_token.delete()
+
+        response.data = {
+            'error': 'Expired refresh token, please log in again.'
+        }
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        
+        # remove refresh token cookie
+        response.delete_cookie('refreshtoken')
+        return response
+    
+
+
+    # get the user asscoiated with token
+    user = User.objects.filter(id=payload.get('user_id')).first()
+    if user is None:
+        response.data = {
+            'msg': 'User not found'
+        }
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return response
+
+    if not user.is_active:
+        response.data = {
+            'msg': 'User is inactive'
+        }
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return response
+
+    # generate new refresh token
+    new_refresh_token = generate_refresh_token(user)
+
+    # Delete old refresh token
+    # if the user has a refresh token in the db,
+    # get the old token
+    old_refresh_token = RefreshToken.objects.filter(user=user.id).first()
+    if old_refresh_token:
+        # delete the old token
+        old_refresh_token.delete()
+
+    # assign a new refresh token to the current user
+    RefreshToken.objects.create(user=user, token=new_refresh_token)
+    
+    # change refreshtoken cookie
+    response.set_cookie(
+        key='refreshtoken', # cookie name
+        value=new_refresh_token, # cookie value
+        httponly=True, # to help prevent XSS attacks
+        samesite='strict', # to help prevent XSS attacks
+        domain='localhost', # change in production
+        # secure=True # for https connections only
+    )
+
+    new_access_token = generate_access_token(user)
+    
+    response.data = {'accessToken': new_access_token}
+    return response
 
 # def user_detail(request, id):
 #     '''
