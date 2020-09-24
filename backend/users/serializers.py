@@ -2,8 +2,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-class UserCreateSerializer(serializers.ModelSerializer):
 
+class UserCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.get('password', None)
         instance = self.Meta.model(**validated_data)

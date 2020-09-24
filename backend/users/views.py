@@ -30,6 +30,14 @@ def register(request):
     # serialize request JSON data
     new_user_serializer = UserCreateSerializer(data=request.data)
 
+    # print(request.data.get('password'), request.data.get('password2'))
+
+    if request.data.get('password') != request.data.get('password2'):
+        # if serializer is invalid
+        response.data = {'msg': "Passwords don't match"}
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return response
+
     if new_user_serializer.is_valid():
         # If the data is valid, create the item in the database
         new_user = new_user_serializer.save()
@@ -40,29 +48,33 @@ def register(request):
 
         # attach the access token to the response data
         # and set the response status code to 201
-        response.data = {'accessToken':access_token }
+        response.data = {'accessToken': access_token}
         response.status_code = status.HTTP_201_CREATED
 
         # create refreshtoken cookie
         response.set_cookie(
             key='refreshtoken',
             value=refresh_token,
-            httponly=True, # to help prevent XSS
-            samesite='strict', # to help prevent XSS
-            domain='localhost', # change in production
+            httponly=True,  # to help prevent XSS
+            samesite='strict',  # to help prevent XSS
+            domain='localhost',  # change in production
             # secure=True # for https connections only
         )
 
         # return successful response
         return response
 
-
+    # if serializer is invalid
+    response.data = {'msg': 'Incorrect username or password'}
+    response.status_code = status.HTTP_400_BAD_REQUEST
     # if the serialized data is NOT valid
     # send a response with error messages and status code 400
-    response.data = { 'error': [msg for msg in new_user_serializer.errors.values()]}
+    response.data = {
+        'error': [msg for msg in new_user_serializer.errors.values()]}
     response.status_code = status.HTTP_400_BAD_REQUEST
     # return failed response
     return response
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -108,11 +120,11 @@ def login(request):
 
     # create refreshtoken cookie
     response.set_cookie(
-        key='refreshtoken', # cookie name
-        value=refresh_token, # cookie value
-        httponly=True, # to help prevent XSS
-        samesite='strict', # to help prevent XSS
-        domain='localhost', # change in production
+        key='refreshtoken',  # cookie name
+        value=refresh_token,  # cookie value
+        httponly=True,  # to help prevent XSS
+        samesite='strict',  # to help prevent XSS
+        domain='localhost',  # change in production
         # secure=True # for https connections only
     )
 
@@ -121,6 +133,7 @@ def login(request):
     }
     response.status_code = status.HTTP_200_OK
     return response
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -141,22 +154,23 @@ def auth(request):
 
     # get the user with the same id as the token's user_id
     user = User.objects.filter(id=payload.get('user_id')).first()
-    
+
     if user is None:
-        response.data = {'msg':'User not found'}
+        response.data = {'msg': 'User not found'}
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return response
-    
+
     if not user.is_active:
-        response.data = {'msg':'User not active'}
+        response.data = {'msg': 'User not active'}
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return response
 
     # serialize the User object and attach to response data
     serialized_user = UserDetailSerializer(instance=user)
-    response.data = {'user':serialized_user.data}
+    response.data = {'user': serialized_user.data}
 
     return response
+
 
 @api_view(['GET'])
 @permission_classes([])
@@ -173,12 +187,12 @@ def extend_token(request):
     # return 401 - Unauthorized
     if refresh_token is None:
         response.data = {
-            'msg':'Authentication credentials were not provided'
+            'msg': 'Authentication credentials were not provided'
         }
 
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return response
-    
+
     # if a token is found,
     # try to decode it
     try:
@@ -187,13 +201,14 @@ def extend_token(request):
             settings.REFRESH_TOKEN_SECRET,
             algorithms=['HS256']
         )
-    
+
     # if the token is expired, delete it from the database
     # return 401 Unauthorized
     except jwt.ExpiredSignatureError:
         # find the expired token in the database
-        expired_token = RefreshToken.objects.filter(token=refresh_token).first()
-        
+        expired_token = RefreshToken.objects.filter(
+            token=refresh_token).first()
+
         # delete the old token
         expired_token.delete()
 
@@ -201,12 +216,10 @@ def extend_token(request):
             'error': 'Expired refresh token, please log in again.'
         }
         response.status_code = status.HTTP_401_UNAUTHORIZED
-        
+
         # remove refresh token cookie
         response.delete_cookie('refreshtoken')
         return response
-    
-
 
     # get the user asscoiated with token
     user = User.objects.filter(id=payload.get('user_id')).first()
@@ -237,19 +250,19 @@ def extend_token(request):
 
     # assign a new refresh token to the current user
     RefreshToken.objects.create(user=user, token=new_refresh_token)
-    
+
     # change refreshtoken cookie
     response.set_cookie(
-        key='refreshtoken', # cookie name
-        value=new_refresh_token, # cookie value
-        httponly=True, # to help prevent XSS attacks
-        samesite='strict', # to help prevent XSS attacks
-        domain='localhost', # change in production
+        key='refreshtoken',  # cookie name
+        value=new_refresh_token,  # cookie value
+        httponly=True,  # to help prevent XSS attacks
+        samesite='strict',  # to help prevent XSS attacks
+        domain='localhost',  # change in production
         # secure=True # for https connections only
     )
 
     new_access_token = generate_access_token(user)
-    
+
     response.data = {'accessToken': new_access_token}
     return response
 
