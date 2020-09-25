@@ -27,17 +27,18 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = get_user_model()
         fields = [
+            'id',
             'username',
             'email',
-            'id',
+            'first_name',
+            'last_name',
             'last_login',
             'date_joined',
         ]

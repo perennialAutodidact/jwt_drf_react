@@ -9,6 +9,6 @@ urlpatterns = [
     path('login/', views.login), # login
     path('auth/', views.auth), # get logged in user via access token
     path('token/', views.extend_token), # request new access tokens
-    # path('<int:pk>/', views.user_detail), # read/update
+    path('<int:pk>/', views.user_detail), # read/update logged in user
     # path('logout/', views.logout), # delete tokens
 ]
