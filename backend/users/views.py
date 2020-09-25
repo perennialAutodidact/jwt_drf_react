@@ -268,7 +268,7 @@ def extend_token(request):
 @api_view(['GET','PUT'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([SafeJWTAuthentication])
-# @ensure_csrf_cookie
+@ensure_csrf_cookie
 def user_detail(request, pk):
     '''
     GET: Get the user data associated with the pk
@@ -276,7 +276,7 @@ def user_detail(request, pk):
     '''
     response = Response()
     user = User.objects.filter(pk=pk).first()
-    
+
     if user is None:
         response.data = {
             'msg': 'User not found'
@@ -311,10 +311,10 @@ def user_detail(request, pk):
 
     if request.method == 'GET':
         serialized_user = UserDetailSerializer(instance=user)
-        
+
         response.data = {'user': serialized_user.data}
         response.status_code = status.HTTP_200_OK
-        
+
         return response
 
     if request.method == 'PUT':
@@ -331,7 +331,34 @@ def user_detail(request, pk):
         response.data = {'error':serialized_user.errors}
         response.status_code = status.HTTP_400_BAD_REQUEST
         return response
-# def logout(request):
-#     '''Delete refresh token from the database
-#     and delete the refreshtoken cookie'''
-#     pass
+
+@api_view(['GET'])
+def logout(request):
+    '''Delete refresh token from the database
+    and delete the refreshtoken cookie'''
+
+    
+
+    response = Response()
+
+    # find the logged in user's refresh token
+    refresh_token = RefreshToken.objects.filter(user=request.user.id).first()
+
+    if refresh_token is None:
+        response.data = {'msg':'Not logged in'}
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return response
+
+    # if the token is found, delete it
+    refresh_token.delete()
+
+    # remove the refreshtoken and csrftoken cookies
+    response.delete_cookie('refreshtoken')
+    response.delete_cookie('csrftoken')
+
+
+    response.data = {
+        'msg': 'Logout successful. See you next time!'
+    }
+
+    return response
