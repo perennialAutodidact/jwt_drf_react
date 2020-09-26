@@ -13,27 +13,25 @@ from rest_framework.decorators import (
     authentication_classes
 )
 
-from .utils import generate_access_token, generate_refresh_token
+from .authentication import SafeJWTAuthentication
 from .models import User, RefreshToken
 from .serializers import UserCreateSerializer, UserDetailSerializer
-from .authentication import SafeJWTAuthentication
+from .utils import generate_access_token, generate_refresh_token
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
     '''Validate request POST data and create new User objects in database
-    Return refresh and access tokens on successful registration'''
+    Set refresh cookie and return access token on successful registration'''
     # create response object
     response = Response()
 
     # serialize request JSON data
     new_user_serializer = UserCreateSerializer(data=request.data)
 
-    # print(request.data.get('password'), request.data.get('password2'))
-
     if request.data.get('password') != request.data.get('password2'):
-        # if serializer is invalid
+        # if password and password2 don't match return status 400
         response.data = {'msg': "Passwords don't match"}
         response.status_code = status.HTTP_400_BAD_REQUEST
         return response
@@ -82,7 +80,9 @@ def login(request):
     '''
     POST: Validate User credentials and generate refresh and access tokens
     '''
+    # create response object
     response = Response()
+
     username = request.data.get('username')
     password = request.data.get('password')
 
@@ -127,6 +127,7 @@ def login(request):
         # secure=True # for https connections only
     )
 
+    # return the access token in the reponse
     response.data = {
         'accessToken': access_token
     }
@@ -145,7 +146,7 @@ def auth(request):
     # Get the access token from headers
     access_token = request.headers.get('Authorization').split(' ')[1]
 
-    # decode token payload
+    # decode access token payload
     payload = jwt.decode(
         access_token,
         settings.SECRET_KEY,
@@ -216,10 +217,11 @@ def extend_token(request):
         }
         response.status_code = status.HTTP_401_UNAUTHORIZED
 
-        # remove refresh token cookie
+        # remove exipred refresh token cookie
         response.delete_cookie('refreshtoken')
         return response
 
+    # if the token is valid,
     # get the user asscoiated with token
     user = User.objects.filter(id=payload.get('user_id')).first()
     if user is None:
@@ -236,7 +238,7 @@ def extend_token(request):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return response
 
-    # generate new refresh token
+    # generate new refresh token for the user
     new_refresh_token = generate_refresh_token(user)
 
     # Delete old refresh token
@@ -260,6 +262,7 @@ def extend_token(request):
         # secure=True # for https connections only
     )
 
+    # generate new access token for the user
     new_access_token = generate_access_token(user)
 
     response.data = {'accessToken': new_access_token}
@@ -274,7 +277,11 @@ def user_detail(request, pk):
     GET: Get the user data associated with the pk
     POST: Update the user data associated with the pk
     '''
+    # Create response object
     response = Response()
+    
+    # find the user associated with
+    # the pk passed in the url
     user = User.objects.filter(pk=pk).first()
 
     if user is None:
@@ -292,7 +299,7 @@ def user_detail(request, pk):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return response
 
-    # Get the access token from headers
+    # Get the access token from request headers
     access_token = request.headers.get('Authorization').split(' ')[1]
 
     # decode token payload
@@ -302,6 +309,8 @@ def user_detail(request, pk):
         algorithms=['HS256']
     )
 
+    # reject the request if the requested
+    # pk is not the owner of the token
     if pk != payload.get('user_id'):
         response.data = {
             'msg':'Not authorized'
@@ -309,6 +318,7 @@ def user_detail(request, pk):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return response
 
+    # GET = view user details
     if request.method == 'GET':
         serialized_user = UserDetailSerializer(instance=user)
 
@@ -317,12 +327,14 @@ def user_detail(request, pk):
 
         return response
 
+    # PUT = update user info
     if request.method == 'PUT':
-        # print(response.cookies.get('csrftoken'))
 
+        # partial = True will allow for User fields to be missing
         serialized_user = UserCreateSerializer(data=request.data, partial=True)
 
         if serialized_user.is_valid():
+            # combine updated with the current user instance and serialize
             serialized_user.update(instance=user, validated_data=serialized_user.validated_data)
             response.data = {'msg': 'Account info updated successffully'}
             response.status_code = status.HTTP_202_ACCEPTED
@@ -336,16 +348,14 @@ def user_detail(request, pk):
 def logout(request):
     '''Delete refresh token from the database
     and delete the refreshtoken cookie'''
-
-    
-
+    # Create response object
     response = Response()
 
     # find the logged in user's refresh token
     refresh_token = RefreshToken.objects.filter(user=request.user.id).first()
 
     if refresh_token is None:
-        response.data = {'msg':'Not logged in'}
+        response.data = {'msg':'Unauthorized'}
         response.status_code = status.HTTP_400_BAD_REQUEST
         return response
 
@@ -355,7 +365,6 @@ def logout(request):
     # remove the refreshtoken and csrftoken cookies
     response.delete_cookie('refreshtoken')
     response.delete_cookie('csrftoken')
-
 
     response.data = {
         'msg': 'Logout successful. See you next time!'
