@@ -1227,6 +1227,8 @@ We'll need a folder for components inside the `src` folder.
 
 Inside we'll be creating three components. 
 
+- `Navbar.js`
+  - Navigating between components
 - `Register.js`
   - Form for creating users
 - `Login.js`
