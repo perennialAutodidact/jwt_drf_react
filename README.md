@@ -33,12 +33,13 @@
       - [Logout](#logout)
   - [Conclusion](#conclusion)
     - [Final file structure](#final-file-structure)
+  - [Frontend](#frontend)
 
 <!-- /TOC -->
 
 ## Setup
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 This project will be using **Django 3.1**, **Django REST Framework 3.1.1** and React via **create-react-app 3.4**.
 
@@ -51,7 +52,7 @@ jwt_def_react/ $ mkdir backend frontend
 
 ## Overview
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Authentication will require three items:
 
@@ -78,13 +79,13 @@ When a user registers or logs in, they will be assigned a refresh token and and 
 
 If the access token is expired when sent, the refresh token is checked for validity. If the refresh token hasn't expired, a new access token is returned and the original request is repeated.
 
-If the token isn't expired and the user with the id of the token's `user_id` is the is authorized to access the data, the data is returned.
+If the token isn't expired and the user with the id of the token's `user_id` is authorized to access the data, the data is returned.
 
 The CSRF cookie will also be attached to each request and its existence and validity will be checked.
 
 ## Environment Variables
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Create a file called `.env` in the `jwt_drf_react` project folder. This file will be used to define environment variables. You will want to add this file the your `.gitignore` file to keep your secrets secret.
 
@@ -113,7 +114,7 @@ jwt_def_react/
 
 ## Backend
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Initialize Pipenv and install Django and other required packages.
 
@@ -126,7 +127,7 @@ $ pipenv install django==3.1.1 djangorestframework==3.11.1 django-cors-headers==
 
 ### Backend Dependencies
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 - Django - Python framework for building web apps
 - Django REST Framework - A powerful and flexible toolkit for building Web APIs.
@@ -136,7 +137,7 @@ $ pipenv install django==3.1.1 djangorestframework==3.11.1 django-cors-headers==
 
 ## Create Django Project
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Create the Django project called `main`
 
@@ -170,7 +171,7 @@ jwt_drf_react/
 
 ### main/settings.py
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 With the exception of the `DEBUG` and `SECRET_KEY` settings, all of the following code is meant to be added to the existing Django settings. This is **not** a complete `settings.py` file on its own.
 
@@ -257,7 +258,7 @@ ALLOWED_HOSTS = [
 
 ### main/urls.py
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 We need to include the urls for the user app in our main urls. You can create any path you'd like for these urls, just make sure they're consistent when making calls to your API endpoints.
 
@@ -279,7 +280,7 @@ urlpatterns = [
 
 ## Users App
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Create a Django app called `users`.
 
@@ -289,7 +290,7 @@ backend/ $ python manage.py startapp users
 
 ### Custom User Model
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 We'll be using a custom user model by extending the `AbstractUser` class. This might not be strictly necessary, but it will be required if you want any additional fields to the User model.
 
@@ -359,7 +360,7 @@ OK
 ```
 
 #### users/admin.py
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 ```python
 from django.contrib import admin
@@ -371,7 +372,7 @@ admin.site.register([User, RefreshToken])
 ```
 
 #### Create Superuser
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 ```bash
 backend/ $ python manage.py createsuperuser
@@ -383,7 +384,7 @@ Login to the admin panel to ensure your models are showing up.
 
 ### users/serializers.py
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Create a file called `serializers.py` which will contain the Django REST serializers for our custom User model. We'll have to overwrite the `create()` and `update()` methods for the `UserCreateSerializer` class in order to encrypt the user's password string.
 
@@ -437,7 +438,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 ### users/utils.py
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 We're going to need a few helper functions for generating JWT access and refresh tokens. These will be defined in `users/utils.py`
 
@@ -506,7 +507,7 @@ def generate_refresh_token(user):
 
 ### users/authentication.py
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Now it's time to implement our custom authentication class. This will check the HTTP request for a CSRF Cookie and `Authorization` HTTP Header. Execptions will be raised if the CSRF Cookie is missing or invalid or if the the `Authorization` header is missing or the access token is expired.
 
@@ -588,7 +589,7 @@ class SafeJWTAuthentication(BaseAuthentication):
 
 ### users/urls.py
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Let's create our URLs for our API endpoints. The 'users' prefix was added in `main/urls.py` so our paths in `users/urls.py` will contain everything after `users/`.
 
@@ -626,7 +627,7 @@ urlpatterns = [
 
 ### users/views.py
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 Now we're ready to create our API views. We will use function-based views with Django REST Framework decorators to define our allowed API methods, permission and authentication classes for each endpoint. Since we're not using class-based views, this file is kind of a doozie!
 
@@ -658,7 +659,7 @@ from .utils import generate_access_token, generate_refresh_token
 
 #### Register
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 ```python
 @api_view(['POST'])
@@ -718,7 +719,7 @@ def register(request):
 
 #### Login
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 ```python
 @api_view(['POST'])
@@ -784,7 +785,7 @@ def login(request):
 
 #### Auth
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 ```python
 @api_view(['GET'])
@@ -827,7 +828,7 @@ def auth(request):
 
 #### Extend Token
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 ```python
 @api_view(['GET'])
@@ -933,7 +934,7 @@ Methods:
 - GET - Get the user object associated with the access token
 - PUT - Update the user info for the user associateed with the access token
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 ```python
 @api_view(['GET','PUT'])
@@ -1015,7 +1016,7 @@ def user_detail(request, pk):
 
 #### Logout
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 ```python
 @api_view(['GET'])
@@ -1049,7 +1050,7 @@ def logout(request):
 
 ## Conclusion
 
-[Top &#8593;](#table-of-contents)
+[Top &#8593;](#introduction)
 
 That should do it for the backend. These views can now be tested using Python's requests module, Curl, or Postman. We could also write tests to ping each endpoint with valid and invalid tokens. Token expiration times can be shortened to test responses with expired tokens.
 
@@ -1084,3 +1085,15 @@ backend/
             0001_initial.py
             __init__.py
 ```
+
+## Frontend
+
+[Top &#8593;](#introduction)
+
+Navigate into the `frontend` directory inside the main `jwt_drf_react` project folder. From here we'll use create-react-app to start our front end React project.
+
+```bash
+jwt_drf_react/ $ cd frontend && npx create-react-app .
+```
+
+Notice the . in place of an app name. 
