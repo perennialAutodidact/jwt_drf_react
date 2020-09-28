@@ -1,16 +1,46 @@
-import React from 'react'
+import React from "react";
 
 const Register = () => {
   return (
-    <div className="register">
-      <form>
-        <input className="form-input" type="text" name="username"/>
-        <input className="form-input" type="password" name="password"/>
-        <input className="form-input" type="password" name="password2"/>
-        <input className="form-submit" type="submit" name="submit" value="Register"/>
-      </form>
-    </div>
-  )
-}
+    <div className="container">
+      <div className="row">
+        <div className="col col-6 offset-3">
+          <h1 className="text-center">Register</h1>
+          <form>
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                className="form-control"
+                type="text"
+                name="username"
+                id="username"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                className="form-control"
+                type="password"
+                name="password"
+                id="password"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password2">Password Confirm</label>
+              <input
+                className="form-control"
+                type="password"
+                name="password2"
+                id="password2"
+              />
+            </div>
 
-export default Register
+            <div className="btn btn-lg btn-primary">Register</div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Register;

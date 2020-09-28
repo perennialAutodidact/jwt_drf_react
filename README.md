@@ -1134,11 +1134,13 @@ Most of the changes we'll be making will be within the `src/` folder.
   - for HTTP requests
 - react-router-dom
   - for routing between React components
+- bootstrap
+  - layout/styling
 
 Install frontend dependencies
 
 ```bash
-frontend/ $ npm install axios react-router-dom
+frontend/ $ npm install axios react-router-dom bootstrap
 ```
 
 ## Auth Context

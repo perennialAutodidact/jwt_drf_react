@@ -1,29 +1,5 @@
 /* App */
-.register {
-    display: flex;
-    justify-items: center;
-    padding: 15px;
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+* {
+    font-family: 'Lato', sans-serif;;
 }
-
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
-    width: 33vw;
-}
-
-.form-input {
-    font-size: 1.5em;
-    padding: 10px;
-    margin: 5px;
-    width: 90%;
-}
-
-.form-submit {
-    margin: 10px;
-    padding: 10px;
-    width: 25%;
-}
-/* Register */
-
