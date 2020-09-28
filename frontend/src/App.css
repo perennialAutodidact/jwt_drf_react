@@ -3,3 +3,11 @@
 * {
     font-family: 'Lato', sans-serif;;
 }
+
+ul li {
+    list-style: none;
+}
+
+a:hover {
+    text-decoration: none;
+}

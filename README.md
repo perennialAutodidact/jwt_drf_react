@@ -1227,6 +1227,8 @@ We'll need a folder for components inside the `src` folder.
 
 Inside we'll be creating three components. 
 
+- `Home.js`
+  - Splash page for redirect after login
 - `Navbar.js`
   - Navigating between components
 - `Register.js`

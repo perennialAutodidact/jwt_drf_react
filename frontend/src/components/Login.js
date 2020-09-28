@@ -26,8 +26,7 @@ const Login = () => {
               />
             </div>
             
-
-            <div className="btn btn-lg btn-primary">Register</div>
+            <div className="btn btn-lg btn-primary">Login</div>
           </form>
         </div>
       </div>
