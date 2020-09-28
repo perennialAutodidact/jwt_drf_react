@@ -9,7 +9,7 @@
   - [Overview](#overview)
   - [Environment Variables](#environment-variables)
     - [env](#env)
-  - [Backend](#backend)
+- [Backend](#backend)
     - [Backend Dependencies](#backend-dependencies)
   - [Create Django Project](#create-django-project)
     - [main/settings.py](#mainsettingspy)
@@ -32,8 +32,18 @@
       - [User Detail](#user-detail)
       - [Logout](#logout)
   - [Conclusion](#conclusion)
-    - [Final file structure](#final-file-structure)
-  - [Frontend](#frontend)
+    - [Final backend structure](#final-backend-structure)
+- [Frontend](#frontend)
+  - [Frontend Dependencies](#frontend-dependencies)
+  - [Auth Context](#auth-context)
+    - [authContext.js](#authcontextjs)
+    - [context/types.js](#contexttypesjs)
+    - [context/AuthState.js](#contextauthstatejs)
+    - [context/authReducer.js](#contextauthreducerjs)
+  - [Auth Components](#auth-components)
+    - [Register.js](#registerjs)
+    - [Login.js](#loginjs)
+    - [components/UserDetail.js](#componentsuserdetailjs)
 
 <!-- /TOC -->
 
@@ -112,7 +122,7 @@ jwt_def_react/
 └───frontend
 ```
 
-## Backend
+# Backend
 
 [Top &#8593;](#introduction)
 
@@ -1054,7 +1064,7 @@ def logout(request):
 
 That should do it for the backend. These views can now be tested using Python's requests module, Curl, or Postman. We could also write tests to ping each endpoint with valid and invalid tokens. Token expiration times can be shortened to test responses with expired tokens.
 
-### Final file structure
+### Final backend structure
 
 ```bash
 backend/
@@ -1086,14 +1096,165 @@ backend/
             __init__.py
 ```
 
-## Frontend
+# Frontend
 
 [Top &#8593;](#introduction)
 
 Navigate into the `frontend` directory inside the main `jwt_drf_react` project folder. From here we'll use create-react-app to start our front end React project.
+
+**Disclaimer**: Admittedly, as of 9/27/2020 as this is written, I am still learning React. Therefore, my knowledge of the inner workings of the React app may have some sizeable holes as to the "why" of certain elements of this project and there may very well be far better ways to accomplish things. I'll do my best to update the guide as I gain more understanding.
 
 ```bash
 jwt_drf_react/ $ cd frontend && npx create-react-app .
 ```
 
 Notice the . in place of an app name. 
+
+File structure after deleting some of the React boilerplate files:
+
+```bash
+frontend/
+│    node_modules/
+│    package.json
+│    package-lock.json
+├─── public
+│        index.html
+│        robots.txt
+├─── src
+│        App.css
+│        App.js
+│        index.js
+```
+
+Most of the changes we'll be making will be within the `src/` folder.
+
+## Frontend Dependencies
+
+- Axios 
+  - for HTTP requests
+- react-router-dom
+  - for routing between React components
+
+Install frontend dependencies
+
+```bash
+frontend/ $ npm install axios react-router-dom
+```
+
+## Auth Context
+
+[Top &#8593;](#introduction)
+
+This app will utilize function-based components, React's Context API and React Hooks to manage state.
+
+First we'll create a directory called `context` to store our auth context files.
+
+Inside we'll create a file called `types.js` and another directory called `auth`.
+
+Inside the `context/auth/` we'll create three files
+
+- `AuthState.js`
+- `authContext.js`
+- `authReducer.js`
+
+The `src/` directory should now look like this:
+
+```bash
+src/
+│   App.css
+│   App.js
+│   index.css
+│   index.js
+│
+└───context
+    │   types.js
+    │
+    └───auth
+            authContext.js 
+            authReducer.js 
+            AuthState.js
+```
+
+### authContext.js
+
+[Top &#8593;](#introduction)
+
+```javascript
+import { createContext } from 'react';
+
+const AuthContext = createContext();
+
+export default AuthContext;
+```
+
+### context/types.js
+
+[Top &#8593;](#introduction)
+
+This file contains the different ways we'll be changing the auth state. They will be used by the Auth Reducer to return updated data to state.
+
+```javascript
+// context/types.js
+```
+
+### context/AuthState.js
+
+[Top &#8593;](#introduction)
+
+State and methods for authenitcating users
+
+```javascript
+// context/AuthState.js
+```
+
+### context/authReducer.js
+
+[Top &#8593;](#introduction)
+
+The Reducer will handle changes to state. Actions from `types.js` will be dispatched to the reducer along with a payload for each action. The payload state will be updated with the data in the payload.
+
+```javascript
+// context/authReducer.js
+
+
+```
+
+## Auth Components
+
+We'll need a folder for components inside the `src` folder.
+
+Inside we'll be creating three components. 
+
+- `Register.js`
+  - Form for creating users
+- `Login.js`
+  - Form for logging in users
+- `UserDetail.js`
+  - View / edit user details
+
+The file structure of these files is completely up to the needs of your project. The user detail component would probably be looped in with other user CRUD components.
+
+### Register.js
+
+[Top &#8593;](#introduction)
+
+```javascript
+// components/Register.js
+```
+
+### Login.js
+
+[Top &#8593;](#introduction)
+
+```javascript
+// components/Login.js
+```
+
+### components/UserDetail.js
+
+[Top &#8593;](#introduction)
+
+```javascript
+// components/UserDetail.js
+```
+
