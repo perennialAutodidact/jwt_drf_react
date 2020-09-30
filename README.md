@@ -1,6 +1,6 @@
 # Introduction
 
- JSON Web Token & CSRF Token Authentication between a Django REST Framework API and React
+JSON Web Token & CSRF Token Authentication between a Django REST Framework API and React
 
 <!-- TOC -->
 
@@ -68,22 +68,22 @@ Authentication will require three items:
 
 1. Django's Cross-Site Request Forgery (CSRF) Cookie
 
-    - Standard Django CSRF cookie
-    - Sent with each request
+   - Standard Django CSRF cookie
+   - Sent with each request
 
 2. JSON Web Token (JWT) Access Token
 
-    - Short exipiration
-    - Stored in app's state
-    - Used to access protected routes
+   - Short exipiration
+   - Stored in app's state
+   - Used to access protected routes
 
 3. JWT Refresh Token
 
-    - Longer expiration
-    - Used to request access tokens
-    - Stored in an HTTPOnly cookie
-    - Associated with foreign key to a user in the database
-    - Deleted from database on logout or exipration
+   - Longer expiration
+   - Used to request access tokens
+   - Stored in an HTTPOnly cookie
+   - Associated with foreign key to a user in the database
+   - Deleted from database on logout or exipration
 
 When a user registers or logs in, they will be assigned a refresh token and and access token. When request is made for protected data, the access token will be passed to the server via the `Authorization` HTTP Header.
 
@@ -356,7 +356,7 @@ Running migrations:
   Applying auth.0006_require_contenttypes_0002... OK
   Applying auth.0007_alter_validators_add_error_messages... OK
   Applying auth.0008_alter_user_username_max_length... OK
-  Applying auth.0009_alter_user_last_name_max_length... 
+  Applying auth.0009_alter_user_last_name_max_length...
 OK
   Applying auth.0010_alter_group_name_max_length... OK
   Applying auth.0011_update_proxy_permissions... OK
@@ -370,6 +370,7 @@ OK
 ```
 
 #### users/admin.py
+
 [Top &#8593;](#introduction)
 
 ```python
@@ -382,6 +383,7 @@ admin.site.register([User, RefreshToken])
 ```
 
 #### Create Superuser
+
 [Top &#8593;](#introduction)
 
 ```bash
@@ -1090,7 +1092,7 @@ backend/
     │   utils.py
     │   views.py
     │   __init__.py
-    │   
+    │
     └───migrations
             0001_initial.py
             __init__.py
@@ -1108,7 +1110,7 @@ Navigate into the `frontend` directory inside the main `jwt_drf_react` project f
 jwt_drf_react/ $ cd frontend && npx create-react-app .
 ```
 
-Notice the . in place of an app name. 
+Notice the . in place of an app name.
 
 File structure after deleting some of the React boilerplate files:
 
@@ -1130,7 +1132,7 @@ Most of the changes we'll be making will be within the `src/` folder.
 
 ## Frontend Dependencies
 
-- Axios 
+- Axios
   - for HTTP requests
 - react-router-dom
   - for routing between React components
@@ -1172,8 +1174,8 @@ src/
     │   types.js
     │
     └───auth
-            authContext.js 
-            authReducer.js 
+            authContext.js
+            authReducer.js
             AuthState.js
 ```
 
@@ -1217,15 +1219,13 @@ The Reducer will handle changes to state. Actions from `types.js` will be dispat
 
 ```javascript
 // context/authReducer.js
-
-
 ```
 
 ## Auth Components
 
 We'll need a folder for components inside the `src` folder.
 
-Inside we'll be creating three components. 
+Inside we'll be create the following components:
 
 - `Home.js`
   - Splash page for redirect after login
@@ -1263,4 +1263,3 @@ The file structure of these files is completely up to the needs of your project.
 ```javascript
 // components/UserDetail.js
 ```
-

@@ -1,10 +1,10 @@
-import React, { useReducer } from "react";
-import axios from "axios";
+import React, { useReducer } from 'react';
+import axios from 'axios';
 
-import AuthContext from "./authContext";
-import authReducer from "./authReducer";
+import AuthContext from './authContext';
+import authReducer from './authReducer';
 
-const AuthState = () => {
+const AuthState = props => {
   const initialState = {
     token: null, // access token
     isAuthenticated: false, //
@@ -21,7 +21,6 @@ const AuthState = () => {
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
-        loading: state.loading,
         error: state.error,
         //register,
         //login,

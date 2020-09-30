@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from 'react';
 
 import AuthContext from '../context/auth/authContext';
 
@@ -7,68 +7,77 @@ const Register = props => {
   const authContext = useContext(AuthContext);
 
   // destructure context items
+  const { user, isAuthenticated, error } = authContext;
 
-  // redirect if an authenticated user exists
+  // run effect when error, isAuthenticated or props.history change
   useEffect(() => {
-    if(isAuthenticated){
+    // redirect if an authenticated user exists
+    if (isAuthenticated) {
       // redirect to the homepage
     }
-  }, [isAuthenticated, props.history])
+  }, [error, isAuthenticated, props.history]);
 
   // setup app-level state to hold form data
-  const [user, setUser] = useState({
+  const [userForm, setUser] = useState({
     username: '',
-    email:'',
+    email: '',
     password: '',
     password2: '',
   });
 
+  const { username, email, password, password2 } = userForm;
 
+  const onChange = e =>
+    setUser({ ...userForm, [e.target.name]: e.target.value });
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col col-6 offset-3">
-          <h1 className="text-center">Register</h1>
+    <div className='container'>
+      <div className='row'>
+        <div className='col col-6 offset-3'>
+          <h1 className='text-center'>Register</h1>
           <form>
-            <div className="form-group">
-              <label htmlFor="username">Username</label>
+            <div className='form-group'>
+              <label htmlFor='username'>Username</label>
               <input
-                className="form-control"
-                type="text"
-                name="username"
-                id="username"
+                className='form-control'
+                type='text'
+                name='username'
+                id='username'
+                onChange={onChange}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="username">Email</label>
+            <div className='form-group'>
+              <label htmlFor='username'>Email</label>
               <input
-                className="form-control"
-                type="text"
-                name="email"
-                id="email"
+                className='form-control'
+                type='text'
+                name='email'
+                id='email'
+                onChange={onChange}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
+            <div className='form-group'>
+              <label htmlFor='password'>Password</label>
               <input
-                className="form-control"
-                type="password"
-                name="password"
-                id="password"
+                className='form-control'
+                type='password'
+                name='password'
+                id='password'
+                onChange={onChange}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="password2">Password Confirm</label>
+            <div className='form-group'>
+              <label htmlFor='password2'>Password Confirm</label>
               <input
-                className="form-control"
-                type="password"
-                name="password2"
-                id="password2"
+                className='form-control'
+                type='password'
+                name='password2'
+                id='password2'
+                onChange={onChange}
               />
             </div>
 
-            <div className="btn btn-lg btn-primary">Register</div>
+            <div className='btn btn-lg btn-primary'>Register</div>
           </form>
         </div>
       </div>
