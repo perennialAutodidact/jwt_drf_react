@@ -68,7 +68,7 @@ def register(request):
     # if the serialized data is NOT valid
     # send a response with error messages and status code 400
     response.data = {
-        'error': [msg for msg in new_user_serializer.errors.values()]}
+        'errors': [msg for msg in new_user_serializer.errors.values()]}
     response.status_code = status.HTTP_400_BAD_REQUEST
     # return failed response
     return response
@@ -213,7 +213,7 @@ def extend_token(request):
         expired_token.delete()
 
         response.data = {
-            'error': 'Expired refresh token, please log in again.'
+            'errors': 'Expired refresh token, please log in again.'
         }
         response.status_code = status.HTTP_401_UNAUTHORIZED
 
@@ -268,7 +268,8 @@ def extend_token(request):
     response.data = {'accessToken': new_access_token}
     return response
 
-@api_view(['GET','PUT'])
+
+@api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([SafeJWTAuthentication])
 @ensure_csrf_cookie
@@ -279,7 +280,7 @@ def user_detail(request, pk):
     '''
     # Create response object
     response = Response()
-    
+
     # find the user associated with
     # the pk passed in the url
     user = User.objects.filter(pk=pk).first()
@@ -313,7 +314,7 @@ def user_detail(request, pk):
     # pk is not the owner of the token
     if pk != payload.get('user_id'):
         response.data = {
-            'msg':'Not authorized'
+            'msg': 'Not authorized'
         }
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return response
@@ -335,14 +336,16 @@ def user_detail(request, pk):
 
         if serialized_user.is_valid():
             # combine updated with the current user instance and serialize
-            serialized_user.update(instance=user, validated_data=serialized_user.validated_data)
+            serialized_user.update(
+                instance=user, validated_data=serialized_user.validated_data)
             response.data = {'msg': 'Account info updated successffully'}
             response.status_code = status.HTTP_202_ACCEPTED
             return response
 
-        response.data = {'error':serialized_user.errors}
+        response.data = {'errors': serialized_user.errors}
         response.status_code = status.HTTP_400_BAD_REQUEST
         return response
+
 
 @api_view(['GET'])
 def logout(request):
@@ -355,7 +358,7 @@ def logout(request):
     refresh_token = RefreshToken.objects.filter(user=request.user.id).first()
 
     if refresh_token is None:
-        response.data = {'msg':'Unauthorized'}
+        response.data = {'msg': 'Unauthorized'}
         response.status_code = status.HTTP_400_BAD_REQUEST
         return response
 

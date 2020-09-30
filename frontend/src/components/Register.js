@@ -7,7 +7,7 @@ const Register = props => {
   const authContext = useContext(AuthContext);
 
   // destructure context items
-  const { user, isAuthenticated, error } = authContext;
+  const { register, user, isAuthenticated, errors } = authContext;
 
   // run effect when error, isAuthenticated or props.history change
   useEffect(() => {
@@ -15,7 +15,15 @@ const Register = props => {
     if (isAuthenticated) {
       // redirect to the homepage
     }
-  }, [error, isAuthenticated, props.history]);
+
+    if (errors) {
+      const errorMsg = errors.map(msg => msg[0]).join('\n\n');
+
+      // this could be set up to diplay as
+      // as a styled alert too.
+      alert(errorMsg);
+    }
+  }, [errors, isAuthenticated, props.history]);
 
   // setup app-level state to hold form data
   const [userForm, setUser] = useState({
@@ -30,12 +38,30 @@ const Register = props => {
   const onChange = e =>
     setUser({ ...userForm, [e.target.name]: e.target.value });
 
+  const onSubmit = e => {
+    e.preventDefault(); // ignore default form submit action
+
+    if (username === '' || email === '' || password === '') {
+      alert('Please enter all fields');
+    } else if (password !== password2) {
+      alert("Passwords don't match");
+    } else {
+      // if all info is valid, pass the form data to register() from AuthState
+      register({
+        username,
+        email,
+        password,
+        password2,
+      });
+    }
+  };
+
   return (
     <div className='container'>
       <div className='row'>
         <div className='col col-6 offset-3'>
           <h1 className='text-center'>Register</h1>
-          <form>
+          <form onSubmit={onSubmit}>
             <div className='form-group'>
               <label htmlFor='username'>Username</label>
               <input
@@ -77,7 +103,11 @@ const Register = props => {
               />
             </div>
 
-            <div className='btn btn-lg btn-primary'>Register</div>
+            <input
+              className='btn btn-lg btn-primary'
+              type='submit'
+              value='Register'
+            />
           </form>
         </div>
       </div>
