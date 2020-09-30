@@ -19,7 +19,7 @@ const Navbar = () => {
         <span className="navbar-toggler-icon"></span>
       </button>
       <div className="collapse navbar-collapse" id="navbarNav">
-        <ul className="navbar-nav">
+        <ul className="navbar-nav ml-auto mr-4">
           <li className="nav-item">
             <a className="nav-link" href="register">
               <h4 className="m-0">Register</h4>
