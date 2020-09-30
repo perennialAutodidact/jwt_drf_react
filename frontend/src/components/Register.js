@@ -7,7 +7,7 @@ const Register = props => {
   const authContext = useContext(AuthContext);
 
   // destructure context items
-  const { register, user, isAuthenticated, errors } = authContext;
+  const { register, user, isAuthenticated, msg } = authContext;
 
   // run effect when error, isAuthenticated or props.history change
   useEffect(() => {
@@ -16,14 +16,14 @@ const Register = props => {
       // redirect to the homepage
     }
 
-    if (errors) {
-      const errorMsg = errors.map(msg => msg[0]).join('\n\n');
+    if (msg) {
+      const errorMsg = msg.map(msg => msg).join('\n\n');
 
       // this could be set up to diplay as
       // as a styled alert too.
       alert(errorMsg);
     }
-  }, [errors, isAuthenticated, props.history]);
+  }, [msg, isAuthenticated, props.history]);
 
   // setup app-level state to hold form data
   const [userForm, setUser] = useState({

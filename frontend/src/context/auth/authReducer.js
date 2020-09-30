@@ -19,15 +19,16 @@ export default (state, action) => {
     case REGISTER_SUCCESS:
       return {
         ...state,
-        token: action.payload,
+        token: action.payload.token,
         isAuthenticated: true,
+        msg: action.payload.msg,
       };
     case REGISTER_FAIL:
       return {
         ...state,
         token: null,
         isAuthenticated: false,
-        errors: action.payload,
+        msg: action.payload,
       };
   }
 };

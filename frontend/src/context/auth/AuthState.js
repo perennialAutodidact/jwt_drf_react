@@ -19,8 +19,8 @@ import {
 const AuthState = props => {
   const initialState = {
     token: null, // access token
-    isAuthenticated: false, //
-    errors: null, // response error, if it exists
+    isAuthenticated: false, // boolean indicating if a user is logged in
+    msg: null, // response messages
     user: null, // object with auth user data
   };
 
@@ -44,10 +44,13 @@ const AuthState = props => {
       );
 
       // dispatch register success to user and pass the user's token as payload
-      dispatch({ type: REGISTER_SUCCESS, payload: response.data });
+      dispatch({
+        type: REGISTER_SUCCESS,
+        payload: { token: response.data, msg: response.data.msg },
+      });
     } catch (error) {
       // dispatch register fail to reducer and display alert
-      dispatch({ type: REGISTER_FAIL, payload: error.response.data.errors });
+      dispatch({ type: REGISTER_FAIL, payload: error.response.data.msg });
     }
   };
 
@@ -57,7 +60,7 @@ const AuthState = props => {
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
-        errors: state.errors,
+        msg: state.msg,
         register,
         //login,
         //loadUser,
