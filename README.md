@@ -35,6 +35,7 @@ JSON Web Token & CSRF Token Authentication between a Django REST Framework API a
     - [Final backend structure](#final-backend-structure)
 - [Frontend](#frontend)
   - [Frontend Dependencies](#frontend-dependencies)
+  - [Utils](#utils)
   - [Auth Context](#auth-context)
     - [authContext.js](#authcontextjs)
     - [context/types.js](#contexttypesjs)
@@ -1145,6 +1146,26 @@ Install frontend dependencies
 frontend/ $ npm install axios react-router-dom bootstrap
 ```
 
+## Utils
+
+To avoid having to manually include the `Authorization` header in each Axios request, it can be set automatically when `AuthState.js` is loaded. We'll create a function to do this for us.
+
+Create a folder called `utils` which will store this function. Inside we'll create a file called `setAccessToken.js`.
+
+```javascript
+import axios from 'axios';
+
+const setAccessToken = accessToken => {
+  if (accessToken) {
+    axios.defaults.headers.common['Authorization'] = `token ${accessToken}`;
+  } else {
+    delete axios.defaults.headers.common['Authorization'];
+  }
+};
+
+export default setAccessToken;
+```
+
 ## Auth Context
 
 [Top &#8593;](#introduction)
@@ -1170,13 +1191,17 @@ src/
 │   index.css
 │   index.js
 │
+│
 └───context
     │   types.js
     │
     └───auth
-            authContext.js
-            authReducer.js
-            AuthState.js
+    │       authContext.js
+    │       authReducer.js
+    │       AuthState.js
+    │
+    └─── utils
+    │       setAccessToken.js
 ```
 
 ### authContext.js

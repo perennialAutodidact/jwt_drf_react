@@ -64,13 +64,11 @@ def register(request):
         # return successful response
         return response
 
-    # if serializer is invalid
-    response.data = {'msg': ['Incorrect username or password']}
-    response.status_code = status.HTTP_400_BAD_REQUEST
     # if the serialized data is NOT valid
     # send a response with error messages and status code 400
     response.data = {
         'msg': [msg for msg in new_user_serializer.errors.values()]}
+
     response.status_code = status.HTTP_400_BAD_REQUEST
     # return failed response
     return response
@@ -116,6 +114,7 @@ def login(request):
         RefreshToken.objects.create(user=user, token=refresh_token)
 
     except RefreshToken.DoesNotExist:
+
         # assign a new refresh token to the current user
         RefreshToken.objects.create(user=user, token=refresh_token)
 
@@ -123,7 +122,7 @@ def login(request):
     response.set_cookie(
         key='refreshtoken',  # cookie name
         value=refresh_token,  # cookie value
-        httponly=True,  # to help prevent XSS
+        httponly=False,  # to help prevent XSS
         samesite='strict',  # to help prevent XSS
         domain='localhost',  # change in production
         # secure=True # for https connections only
@@ -131,7 +130,8 @@ def login(request):
 
     # return the access token in the reponse
     response.data = {
-        'accessToken': access_token
+        'accessToken': access_token,
+        'msg': ['Login successful!']
     }
     response.status_code = status.HTTP_200_OK
     return response
@@ -140,6 +140,7 @@ def login(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([SafeJWTAuthentication])
+@ensure_csrf_cookie
 def auth(request):
     '''Return the user data for the user id contained in a valid access token'''
     # create response object
@@ -176,7 +177,7 @@ def auth(request):
 
 
 @api_view(['GET'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def extend_token(request):
     '''Return new access token if request's refresh token cookie is valid'''
     # create response object

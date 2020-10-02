@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
+
+import AuthContext from '../context/auth/authContext';
 
 const Home = () => {
+  const authContext = useContext(AuthContext);
+
+  const { isAuthenticated, user } = authContext;
+
   return (
     <div>
-      <h1 className='text-center'>Welcome!</h1>
+      <h1 className='text-center'>
+        {/* Welcome! {isAuthenticated && user.username} */}
+      </h1>
     </div>
   );
 };

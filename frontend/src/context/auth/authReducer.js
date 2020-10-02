@@ -17,18 +17,30 @@ export default (state, action) => {
         ...state,
       };
     case REGISTER_SUCCESS:
+    case LOGIN_SUCCESS:
       return {
         ...state,
-        token: action.payload.token,
+        accessToken: action.payload.token,
         isAuthenticated: true,
-        msg: action.payload.msg,
+        messages: action.payload.messages,
       };
     case REGISTER_FAIL:
+    case LOGIN_FAIL:
       return {
         ...state,
-        token: null,
+        accessToken: null,
         isAuthenticated: false,
-        msg: action.payload,
+        messages: action.payload.messages,
+      };
+    case LOAD_USER_SUCCESS:
+      return {
+        ...state,
+        user: action.payload,
+      };
+    case LOAD_USER_FAIL:
+      return {
+        ...state,
+        message: action.payload.messages,
       };
   }
 };

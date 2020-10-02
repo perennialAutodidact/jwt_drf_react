@@ -3,14 +3,14 @@ import decouple   # add
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = decouple.config('DJANGO_DEBUG') 
+DEBUG = decouple.config('DJANGO_DEBUG')
 
 # set SECRET_KEY based on value of DEBUG
 if DEBUG:
     # SECURITY WARNING: keep the secret key used in production secret!
     SECRET_KEY = decouple.config('DJANGO_SECRET_KEY_DEVELOPMENT')
 else:
-    SECRET_KEY = decouple.config('DJANGO_SECRET_KEY_PRODUCTION') 
+    SECRET_KEY = decouple.config('DJANGO_SECRET_KEY_PRODUCTION')
 
 
 INSTALLED_APPS = [
@@ -21,14 +21,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'rest_framework', # add
-    'corsheaders', # add
+    'rest_framework',  # add
+    'corsheaders',  # add
 
-    'users', # add
+    'users',  # add
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # add
+    'corsheaders.middleware.CorsMiddleware',  # add
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -94,7 +94,7 @@ STATIC_URL = '/static/'
 # REST Framework Defaults
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'users.authentication.SafeJWTAuthentication' # custom authentication class
+        'users.authentication.SafeJWTAuthentication'  # custom authentication class
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
@@ -132,7 +132,6 @@ CORS_ALLOW_HEADERS = [
     'content-type',
     'refresh_token'
     'x-csrftoken',
-    # 'x-xsrf-token'
 ]
 
 ALLOWED_HOSTS = [

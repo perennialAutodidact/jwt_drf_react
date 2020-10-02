@@ -1,5 +1,6 @@
 import React, { useReducer } from 'react';
 import axios from 'axios';
+import setAccessToken from '../../utils/setAccessToken';
 
 import AuthContext from './authContext';
 import authReducer from './authReducer';
@@ -18,14 +19,20 @@ import {
 
 const AuthState = props => {
   const initialState = {
-    token: null, // access token
+    accessToken: null, // logged in user's current access token
     isAuthenticated: false, // boolean indicating if a user is logged in
-    msg: null, // response messages
+    messages: null, // response messages
     user: null, // object with auth user data
   };
 
   // initialize the auth reducer
   const [state, dispatch] = useReducer(authReducer, initialState);
+
+  // destructure state
+  const { accessToken } = state;
+
+  // set 'Authorization' header in Axios
+  setAccessToken(accessToken);
 
   // register new user. async because of axios call
   const register = async formData => {
@@ -46,7 +53,10 @@ const AuthState = props => {
       // dispatch register success to user and pass the user's token as payload
       dispatch({
         type: REGISTER_SUCCESS,
-        payload: { token: response.data, msg: response.data.msg },
+        payload: {
+          token: response.data.accessToken,
+          messages: response.data.msg,
+        },
       });
     } catch (error) {
       // dispatch register fail to reducer and display alert
@@ -54,16 +64,67 @@ const AuthState = props => {
     }
   };
 
+  // login user. async because of axios call
+  const login = async formData => {
+    const config = {
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      // POST to users/login/
+      const response = await axios.post(
+        'http://localhost:8000/users/login/',
+        formData,
+        config
+      );
+
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: {
+          token: response.data.accessToken,
+          messages: response.data.msg,
+        },
+      });
+
+      loadUser();
+    } catch (error) {
+      dispatch({
+        type: LOGIN_FAIL,
+        payload: { messages: error.response.data.msg },
+      });
+    }
+  };
+
+  // get user object from accessToken
+  const loadUser = async () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      // X-CSRFToken: provided automatically with Django view with @ensure_csrf_cookie decorator
+      // Authorization: `token ${state.accessToken}`,
+      // withCredentials: true,
+      // the Authorization header can also be set as an Axios default
+      // when AuthContext is loaded with each component
+    };
+
+    try {
+      const response = await axios.get('http://localhost:8000/users/auth/');
+
+      dispatch({ type: LOAD_USER_SUCCESS, payload: response.data.user });
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user: state.user,
-        token: state.token,
+        accessToken: state.accessToken,
         isAuthenticated: state.isAuthenticated,
-        msg: state.msg,
+        messages: state.messages,
         register,
-        //login,
-        //loadUser,
+        login,
+        loadUser,
         //logout,
         //clearErrors,
       }}

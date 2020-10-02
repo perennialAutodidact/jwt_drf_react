@@ -7,23 +7,24 @@ const Register = props => {
   const authContext = useContext(AuthContext);
 
   // destructure context items
-  const { register, user, isAuthenticated, msg } = authContext;
+  const { register, isAuthenticated, messages } = authContext;
 
   // run effect when error, isAuthenticated or props.history change
   useEffect(() => {
     // redirect if an authenticated user exists
     if (isAuthenticated) {
       // redirect to the homepage
+      props.history.push('/');
     }
 
-    if (msg) {
-      const errorMsg = msg.map(msg => msg).join('\n\n');
+    if (messages) {
+      const errorMsg = messages.map(msg => msg).join('\n\n');
 
       // this could be set up to diplay as
       // as a styled alert too.
       alert(errorMsg);
     }
-  }, [msg, isAuthenticated, props.history]);
+  }, [messages, isAuthenticated, props.history]);
 
   // setup app-level state to hold form data
   const [userForm, setUser] = useState({
@@ -41,6 +42,8 @@ const Register = props => {
   const onSubmit = e => {
     e.preventDefault(); // ignore default form submit action
 
+    // if username, email or password are blank
+    // or password doesn't match password 2, raise an alert
     if (username === '' || email === '' || password === '') {
       alert('Please enter all fields');
     } else if (password !== password2) {
