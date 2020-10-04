@@ -122,9 +122,9 @@ def login(request):
     response.set_cookie(
         key='refreshtoken',  # cookie name
         value=refresh_token,  # cookie value
-        httponly=False,  # to help prevent XSS
-        samesite='strict',  # to help prevent XSS
+        httponly=True,  # to help prevent XSS
         domain='localhost',  # change in production
+        samesite='strict',  # to help prevent XSS
         # secure=True # for https connections only
     )
 
@@ -177,7 +177,8 @@ def auth(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
+@ensure_csrf_cookie
 def extend_token(request):
     '''Return new access token if request's refresh token cookie is valid'''
     # create response object

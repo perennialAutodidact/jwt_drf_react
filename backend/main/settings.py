@@ -101,12 +101,12 @@ REST_FRAMEWORK = {
     ]
 }
 
-# Secret for encoding User refresh tokens
-REFRESH_TOKEN_SECRET = decouple.config('DJANGO_REFRESH_TOKEN_SECRET')
 
 # Use custom user model for authentication
 AUTH_USER_MODEL = 'users.User'
 
+# Secret for encoding User refresh tokens
+REFRESH_TOKEN_SECRET = decouple.config('DJANGO_REFRESH_TOKEN_SECRET')
 CORS_ALLOW_CREDENTIALS = True  # to accept cookies via axios
 
 CORS_ORIGIN_WHITELIST = [
@@ -130,8 +130,10 @@ CSRF_TRUSTED_ORIGINS = [
 CORS_ALLOW_HEADERS = [
     'authorization',
     'content-type',
-    'refresh_token'
+    'refresh_token',
     'x-csrftoken',
+    'x-xsrf-token'
+
 ]
 
 ALLOWED_HOSTS = [

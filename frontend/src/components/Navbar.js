@@ -1,26 +1,31 @@
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import AuthContext from '../context/auth/authContext';
 
+
 const Navbar = () => {
   const authContext = useContext(AuthContext);
 
-  const { isAuthenticated } = authContext;
+  const { isAuthenticated, user, accessToken, requestAccessToken } = authContext;
 
-  console.log('isAuthenticated: ', isAuthenticated);
+  console.log(user)
+
+  useEffect(()=>{
+    requestAccessToken();
+  },[isAuthenticated,user,accessToken])
 
   const guestLinks = (
     <Fragment>
       <li className='nav-item'>
-        <a className='nav-link' href='register'>
+        <Link className='nav-link' to="/register">
           <h4 className='m-0'>Register</h4>
-        </a>
+        </Link>
       </li>
       <li className='nav-item'>
-        <a className='nav-link' href='/login'>
+        <Link className='nav-link' to='/login'>
           <h4 className='m-0'>Login</h4>
-        </a>
+        </Link>
       </li>
     </Fragment>
   );
@@ -28,18 +33,18 @@ const Navbar = () => {
   const authLinks = (
     <Fragment>
       <li className='nav-item'>
-        <a className='nav-link' href='register'>
+        <Link className='nav-link' to={user ? `account/${user.id}`: ''}>
           <h4 className='m-0'>Account</h4>
-        </a>
+        </Link>
       </li>
     </Fragment>
   );
 
   return (
     <nav className='navbar navbar-expand-lg navbar-dark bg-info'>
-      <a className='navbar-brand' href='/'>
+      <Link className='navbar-brand' to='/'>
         <h1>JWT Auth</h1>
-      </a>
+      </Link>
       <button
         className='navbar-toggler'
         type='button'
