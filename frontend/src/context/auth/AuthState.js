@@ -99,11 +99,6 @@ const AuthState = props => {
   const loadUser = async () => {
     const headers = {
       'Content-Type': 'application/json',
-      // X-CSRFToken: provided automatically with Django view with @ensure_csrf_cookie decorator
-      // Authorization: `token ${state.accessToken}`,
-      // withCredentials: true,
-      // the Authorization header can also be set as an Axios default
-      // when AuthContext is loaded with each component
     };
 
     try {

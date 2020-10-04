@@ -1,35 +1,59 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { Fragment, useContext } from 'react';
+import { Link } from 'react-router-dom';
+
+import AuthContext from '../context/auth/authContext';
 
 const Navbar = () => {
+  const authContext = useContext(AuthContext);
+
+  const { isAuthenticated } = authContext;
+
+  console.log('isAuthenticated: ', isAuthenticated);
+
+  const guestLinks = (
+    <Fragment>
+      <li className='nav-item'>
+        <a className='nav-link' href='register'>
+          <h4 className='m-0'>Register</h4>
+        </a>
+      </li>
+      <li className='nav-item'>
+        <a className='nav-link' href='/login'>
+          <h4 className='m-0'>Login</h4>
+        </a>
+      </li>
+    </Fragment>
+  );
+
+  const authLinks = (
+    <Fragment>
+      <li className='nav-item'>
+        <a className='nav-link' href='register'>
+          <h4 className='m-0'>Account</h4>
+        </a>
+      </li>
+    </Fragment>
+  );
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-info">
-      <a className="navbar-brand" href="/">
+    <nav className='navbar navbar-expand-lg navbar-dark bg-info'>
+      <a className='navbar-brand' href='/'>
         <h1>JWT Auth</h1>
       </a>
       <button
-        className="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
+        className='navbar-toggler'
+        type='button'
+        data-toggle='collapse'
+        data-target='#navbarNav'
+        aria-controls='navbarNav'
+        aria-expanded='false'
+        aria-label='Toggle navigation'
       >
-        <span className="navbar-toggler-icon"></span>
+        <span className='navbar-toggler-icon'></span>
       </button>
-      <div className="collapse navbar-collapse" id="navbarNav">
-        <ul className="navbar-nav ml-auto mr-4">
-          <li className="nav-item">
-            <a className="nav-link" href="register">
-              <h4 className="m-0">Register</h4>
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/login">
-              <h4 className="m-0">Login</h4>
-            </a>
-          </li>
+      <div className='collapse navbar-collapse' id='navbarNav'>
+        <ul className='navbar-nav ml-auto mr-4'>
+          {isAuthenticated ? authLinks : guestLinks}
         </ul>
       </div>
     </nav>
