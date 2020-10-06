@@ -5,12 +5,13 @@ from django.conf import settings
 
 from users.models import User, RefreshToken
 
+
 def generate_access_token(user):
     access_token_payload = {
         # id from User instance
         'user_id': user.id,
-         # expiration date
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=0, seconds=1.0),
+        # expiration date
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=0, seconds=5),
         # initiated at date
         'iat': datetime.datetime.utcnow(),
         # additional items if desired
@@ -31,7 +32,7 @@ def generate_refresh_token(user):
     refresh_token_payload = {
         # id from User instance
         'user_id': user.id,
-         # expiration date
+        # expiration date
         'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
         # initiated at date
         'iat': datetime.datetime.utcnow(),

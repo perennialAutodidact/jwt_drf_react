@@ -1,9 +1,9 @@
-import React, { useReducer } from "react";
-import axios from "axios";
-import setAccessToken from "../../utils/setAccessToken";
+import React, { useReducer } from 'react';
+import axios from 'axios';
+import setAccessToken from '../../utils/setAccessToken';
 
-import AuthContext from "./authContext";
-import authReducer from "./authReducer";
+import AuthContext from './authContext';
+import authReducer from './authReducer';
 
 import {
   REGISTER_SUCCESS,
@@ -17,9 +17,9 @@ import {
   EXTEND_TOKEN_FAIL,
   SET_ERROR,
   CLEAR_ERROR,
-} from "../types"; // action types to dispatch to reducer
+} from '../types'; // action types to dispatch to reducer
 
-const AuthState = (props) => {
+const AuthState = props => {
   const initialState = {
     accessToken: null, // logged in user's current access token
     isAuthenticated: false, // boolean indicating if a user is logged in
@@ -40,11 +40,11 @@ const AuthState = (props) => {
   const requestAccessToken = async () => {
     try {
       const config = {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         withCredentials: true,
       };
       const response = await axios.get(
-        "http://localhost:8000/users/token/",
+        'http://localhost:8000/users/token/',
         config
       );
 
@@ -56,17 +56,17 @@ const AuthState = (props) => {
 
       loadUser();
     } catch (error) {
-      dispatch({type:EXTEND_TOKEN_FAIL,payload:error.response.data})
+      // dispatch({ type: EXTEND_TOKEN_FAIL, payload: error.response.data });
       // set alert "Not Authorized"
-      console.log("requestAccessToken ERROR", error.response.data);
+      console.log('requestAccessToken ERROR', error.response.data);
     }
   };
 
   // register new user. async because of axios call
-  const register = async (formData) => {
+  const register = async formData => {
     const config = {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         withCredentials: true, // required to set the refreshtoken cookie in the browser!!!
       },
     };
@@ -74,7 +74,7 @@ const AuthState = (props) => {
     try {
       // POST to api register view
       const response = await axios.post(
-        "http://localhost:8000/users/",
+        'http://localhost:8000/users/',
         formData,
         config
       );
@@ -94,16 +94,16 @@ const AuthState = (props) => {
   };
 
   // login user. async because of axios call
-  const login = async (formData) => {
+  const login = async formData => {
     const config = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       withCredentials: true, // required to set the refreshtoken cookie in the browser!!!
     };
 
     try {
       // POST to users/login/
       const response = await axios.post(
-        "http://localhost:8000/users/login/",
+        'http://localhost:8000/users/login/',
         formData,
         config
       );
@@ -128,15 +128,18 @@ const AuthState = (props) => {
   // get user object from accessToken
   const loadUser = async () => {
     const headers = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
+      withCredentials: true,
     };
 
     try {
-      const response = await axios.get("http://localhost:8000/users/auth/");
+      const response = await axios.get('http://localhost:8000/users/auth/');
 
       dispatch({ type: LOAD_USER_SUCCESS, payload: response.data.user });
     } catch (error) {
-      if(error.response.data.msg === 'Access token expired'){
+      console.log('LOADUSERERROR:', error.response);
+
+      if (error.response.data.msg === 'Access token expired') {
         requestAccessToken();
       }
     }

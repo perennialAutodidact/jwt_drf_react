@@ -8,6 +8,8 @@ import {
   LOGOUT,
   SET_ERROR,
   CLEAR_ERROR,
+  EXTEND_TOKEN_SUCCESS,
+  EXTEND_TOKEN_FAIL,
 } from '../types'; // action types
 
 export default (state, action) => {
@@ -41,6 +43,18 @@ export default (state, action) => {
       return {
         ...state,
         message: action.payload.messages,
+      };
+    case EXTEND_TOKEN_SUCCESS:
+      return {
+        ...state,
+        accessToken: action.payload.accessToken,
+        isAuthenticated: true,
+      };
+    case EXTEND_TOKEN_FAIL:
+      return {
+        ...state,
+        accessToken: null,
+        isAuthenticated: false,
       };
   }
 };

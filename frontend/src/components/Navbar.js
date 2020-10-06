@@ -3,22 +3,22 @@ import { Link } from 'react-router-dom';
 
 import AuthContext from '../context/auth/authContext';
 
-
 const Navbar = () => {
   const authContext = useContext(AuthContext);
 
-  const { isAuthenticated, user, accessToken, requestAccessToken } = authContext;
+  const onLogout = () => {};
 
-  console.log(user)
-
-  useEffect(()=>{
-    requestAccessToken();
-  },[isAuthenticated,user,accessToken])
+  const {
+    isAuthenticated,
+    user,
+    accessToken,
+    requestAccessToken,
+  } = authContext;
 
   const guestLinks = (
     <Fragment>
       <li className='nav-item'>
-        <Link className='nav-link' to="/register">
+        <Link className='nav-link' to='/register'>
           <h4 className='m-0'>Register</h4>
         </Link>
       </li>
@@ -33,8 +33,13 @@ const Navbar = () => {
   const authLinks = (
     <Fragment>
       <li className='nav-item'>
-        <Link className='nav-link' to={user ? `account/${user.id}`: ''}>
+        <Link className='nav-link' to={user ? `/account/${user.id}` : ''}>
           <h4 className='m-0'>Account</h4>
+        </Link>
+      </li>
+      <li className='nav-item'>
+        <Link className='nav-link' onClick={onLogout}>
+          <h4 className='m-0'>Logout</h4>
         </Link>
       </li>
     </Fragment>

@@ -147,7 +147,16 @@ def auth(request):
     response = Response()
 
     # Get the access token from headers
-    access_token = request.headers.get('Authorization').split(' ')[1]
+    access_token = request.headers.get('Authorization')
+
+    # if the access token doesn't exist, return 401
+    if access_token is None:
+        response.data = {'msg': ['No access token']}
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return response
+
+    # remove 'token' prefix
+    access_token = access_token.split(' ')[1]
 
     # decode access token payload
     payload = jwt.decode(
