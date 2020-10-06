@@ -33,7 +33,7 @@ const Navbar = () => {
   const authLinks = (
     <Fragment>
       <li className='nav-item'>
-        <Link className='nav-link' to={user ? `/account/${user.id}` : ''}>
+        <Link className='nav-link' to='/account'>
           <h4 className='m-0'>Account</h4>
         </Link>
       </li>

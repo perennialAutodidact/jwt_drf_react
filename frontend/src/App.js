@@ -11,6 +11,7 @@ import Login from './components/Login';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import UserDetail from './components/UserDetail';
+import PrivateRoute from './components/PrivateRoute';
 
 const App = () => {
   const authContext = useContext(AuthContext);
@@ -29,9 +30,7 @@ const App = () => {
         <Route exact path='/' component={Home} />
         <Route exact path='/register' component={Register} />
         <Route exact path='/login' component={Login} />
-        <Route path='/account/:id'>
-          <UserDetail user={user}></UserDetail>
-        </Route>
+        <PrivateRoute path='/account' component={UserDetail} user={user}/>
       </Router>
     </div>
   );

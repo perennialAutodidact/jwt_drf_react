@@ -8,6 +8,11 @@ const Login = props => {
   const { login, isAuthenticated, messages } = authContext;
 
   useEffect(() => {
+    console.log('login page params:',props.match.params);
+
+  },[])
+
+  useEffect(() => {
     // redirect if an authenticated user exists
     if (isAuthenticated) {
       // redirect to the homepage

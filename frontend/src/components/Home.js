@@ -7,8 +7,6 @@ const Home = () => {
 
   const { isAuthenticated, user } = authContext;
 
-  console.log('you sir:', user);
-
   return (
     <div>
       <h1 className='text-center'>Welcome{user && ', ' + user.username}!</h1>
