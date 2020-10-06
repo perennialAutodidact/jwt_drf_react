@@ -56,9 +56,9 @@ const AuthState = props => {
 
       loadUser();
     } catch (error) {
-      // dispatch({ type: EXTEND_TOKEN_FAIL, payload: error.response.data });
+      dispatch({ type: EXTEND_TOKEN_FAIL, payload: error.response.data });
       // set alert "Not Authorized"
-      console.log('requestAccessToken ERROR', error.response.data);
+      // console.log('requestAccessToken ERROR', error.response.data);
     }
   };
 
@@ -137,11 +137,11 @@ const AuthState = props => {
 
       dispatch({ type: LOAD_USER_SUCCESS, payload: response.data.user });
     } catch (error) {
-      console.log('LOADUSERERROR:', error.response);
-
+      
       if (error.response.data.msg === 'Access token expired') {
         requestAccessToken();
       }
+      dispatch({ type: LOAD_USER_FAIL, payload: error.response.data.msg });
     }
   };
 

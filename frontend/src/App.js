@@ -16,12 +16,23 @@ import PrivateRoute from './components/PrivateRoute';
 const App = () => {
   const authContext = useContext(AuthContext);
 
-  const { requestAccessToken, user } = authContext;
+  const { requestAccessToken, user, messages } = authContext;
 
   useEffect(() => {
     // if refresh token exists, request new access token
     requestAccessToken();
   }, []);
+
+  useEffect(() => {
+    if(messages){
+      console.log('messages:', messages);
+      const errorMsg = messages.map(msg => msg).join('\n\n');
+
+      // this could be set up to diplay as
+      // as a styled alert too.
+      alert(errorMsg);
+    }
+  }, [messages])
 
   return (
     <div className='App'>

@@ -42,7 +42,7 @@ export default (state, action) => {
     case LOAD_USER_FAIL:
       return {
         ...state,
-        message: action.payload.messages,
+        messages: action.payload.messages,
       };
     case EXTEND_TOKEN_SUCCESS:
       return {
@@ -55,6 +55,7 @@ export default (state, action) => {
         ...state,
         accessToken: null,
         isAuthenticated: false,
+        messages: action.payload.msg
       };
   }
 };
