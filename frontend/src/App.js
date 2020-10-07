@@ -21,10 +21,10 @@ const App = () => {
   useEffect(() => {
     // if refresh token exists, request new access token
     requestAccessToken();
-  }, []);
+  }, []); // empty [] ensures this only runs once when App.js is mounted
 
   useEffect(() => {
-    if(messages){
+    if (messages) {
       console.log('messages:', messages);
       const errorMsg = messages.map(msg => msg).join('\n\n');
 
@@ -32,7 +32,7 @@ const App = () => {
       // as a styled alert too.
       alert(errorMsg);
     }
-  }, [messages])
+  }, [messages]); // update messages if messages change in state
 
   return (
     <div className='App'>
@@ -41,7 +41,7 @@ const App = () => {
         <Route exact path='/' component={Home} />
         <Route exact path='/register' component={Register} />
         <Route exact path='/login' component={Login} />
-        <PrivateRoute path='/account' component={UserDetail} user={user}/>
+        <PrivateRoute path='/account' component={UserDetail} user={user} />
       </Router>
     </div>
   );
