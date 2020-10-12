@@ -86,6 +86,7 @@ const AuthState = props => {
           messages: response.data.msg,
         },
       });
+      loadUser();
     } catch (error) {
       // dispatch register fail to reducer and display alert
       dispatch({ type: REGISTER_FAIL, payload: error.response.data.msg });
