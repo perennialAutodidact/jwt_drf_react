@@ -6,8 +6,6 @@ import {
   LOAD_USER_SUCCESS,
   LOAD_USER_FAIL,
   LOGOUT,
-  SET_ERROR,
-  CLEAR_ERROR,
   EXTEND_TOKEN_SUCCESS,
   EXTEND_TOKEN_FAIL,
 } from '../types'; // action types
@@ -25,37 +23,33 @@ export default (state, action) => {
         accessToken: action.payload.token,
         isAuthenticated: true,
         messages: action.payload.messages,
+        loading: false,
       };
     case REGISTER_FAIL:
     case LOGIN_FAIL:
+    case LOAD_USER_FAIL:
+    case EXTEND_TOKEN_FAIL:
+    case LOGOUT:
       return {
         ...state,
         accessToken: null,
         isAuthenticated: false,
+        user: null,
         messages: action.payload.messages,
+        loading: false,
       };
     case LOAD_USER_SUCCESS:
       return {
         ...state,
         user: action.payload,
-      };
-    case LOAD_USER_FAIL:
-      return {
-        ...state,
-        messages: action.payload.messages,
+        loading: false,
       };
     case EXTEND_TOKEN_SUCCESS:
       return {
         ...state,
         accessToken: action.payload.accessToken,
         isAuthenticated: true,
-      };
-    case EXTEND_TOKEN_FAIL:
-      return {
-        ...state,
-        accessToken: null,
-        isAuthenticated: false,
-        messages: action.payload.msg
+        loading: false,
       };
   }
 };

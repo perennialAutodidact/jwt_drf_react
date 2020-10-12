@@ -36,7 +36,7 @@ class SafeJWTAuthentication(BaseAuthentication):
         except jwt.ExpiredSignatureError:
             raise exceptions.AuthenticationFailed(
                 detail={
-                    'msg': 'Access token expired',
+                    'msg': ['Access token expired'],
                 }
             )
         # if token doesn't exist

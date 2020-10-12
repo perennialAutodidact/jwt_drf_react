@@ -3,6 +3,7 @@ import jwt
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.http import HttpResponse
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -181,7 +182,6 @@ def auth(request):
     # serialize the User object and attach to response data
     serialized_user = UserDetailSerializer(instance=user)
     response.data = {'user': serialized_user.data}
-
     return response
 
 
@@ -199,6 +199,19 @@ def extend_token(request):
     # if the refresh token doesn't exist
     # return 401 - Unauthorized
     if refresh_token is None:
+        response.data = {
+            'msg': ['Authentication credentials were not provided']
+        }
+
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return response
+
+    # if the refresh_token doesn't exist in the database,
+    # return 401 - Unauthorized
+    user_refresh_token = RefreshToken.objects.filter(
+        token=refresh_token).first()
+
+    if user_refresh_token is None:
         response.data = {
             'msg': ['Authentication credentials were not provided']
         }
@@ -361,17 +374,20 @@ def user_detail(request, pk):
 
 
 @api_view(['GET'])
+@ensure_csrf_cookie
 def logout(request):
     '''Delete refresh token from the database
     and delete the refreshtoken cookie'''
     # Create response object
     response = Response()
 
+    print(request.user)
+
     # find the logged in user's refresh token
     refresh_token = RefreshToken.objects.filter(user=request.user.id).first()
 
     if refresh_token is None:
-        response.data = {'msg': ['Unauthorized']}
+        response.data = {'msg': ['Not logged in']}
         response.status_code = status.HTTP_400_BAD_REQUEST
         return response
 
@@ -379,8 +395,8 @@ def logout(request):
     refresh_token.delete()
 
     # remove the refreshtoken and csrftoken cookies
-    response.delete_cookie('refreshtoken')
-    response.delete_cookie('csrftoken')
+    response.set_cookie('refreshtoken', '', max_age=.1, domain='localhost')
+    response.delete_cookie('csrftoken', domain='localhost')
 
     response.data = {
         'msg': ['Logout successful. See you next time!']

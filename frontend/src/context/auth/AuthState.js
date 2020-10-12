@@ -19,12 +19,15 @@ import {
   CLEAR_ERROR,
 } from '../types'; // action types to dispatch to reducer
 
+const BASE_URL = 'http://localhost:8000/users';
+
 const AuthState = props => {
   const initialState = {
     accessToken: null, // logged in user's current access token
     isAuthenticated: false, // boolean indicating if a user is logged in
     messages: null, // response messages
     user: null, // object with auth user data
+    loading: true, // no response yet from api
   };
 
   // initialize the auth reducer
@@ -43,10 +46,7 @@ const AuthState = props => {
         'Content-Type': 'application/json',
         withCredentials: true,
       };
-      const response = await axios.get(
-        'http://localhost:8000/users/token/',
-        config
-      );
+      const response = await axios.get(BASE_URL + '/token/', config);
 
       // Dispatch accessToken to state
       dispatch({
@@ -56,7 +56,10 @@ const AuthState = props => {
 
       loadUser();
     } catch (error) {
-      dispatch({ type: EXTEND_TOKEN_FAIL, payload: error.response.data });
+      dispatch({
+        type: EXTEND_TOKEN_FAIL,
+        payload: { messages: error.response.data.msg },
+      });
       // set alert "Not Authorized"
       // console.log('requestAccessToken ERROR', error.response.data);
     }
@@ -73,11 +76,7 @@ const AuthState = props => {
 
     try {
       // POST to api register view
-      const response = await axios.post(
-        'http://localhost:8000/users/',
-        formData,
-        config
-      );
+      const response = await axios.post(BASE_URL + '/', formData, config);
 
       // dispatch register success to user and pass the user's token as payload
       dispatch({
@@ -102,11 +101,7 @@ const AuthState = props => {
 
     try {
       // POST to users/login/
-      const response = await axios.post(
-        'http://localhost:8000/users/login/',
-        formData,
-        config
-      );
+      const response = await axios.post(BASE_URL + '/login/', formData, config);
 
       dispatch({
         type: LOGIN_SUCCESS,
@@ -133,15 +128,41 @@ const AuthState = props => {
     };
 
     try {
-      const response = await axios.get('http://localhost:8000/users/auth/');
+      const response = await axios.get(BASE_URL + '/auth/');
 
-      dispatch({ type: LOAD_USER_SUCCESS, payload: response.data.user });
+      dispatch({
+        type: LOAD_USER_SUCCESS,
+        payload: response.data.user,
+      });
     } catch (error) {
-      
       if (error.response.data.msg === 'Access token expired') {
         requestAccessToken();
       }
-      dispatch({ type: LOAD_USER_FAIL, payload: error.response.data.msg });
+      dispatch({
+        type: LOAD_USER_FAIL,
+        payload: { messages: error.response.data.msg },
+      });
+    }
+  };
+
+  const logout = async () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      withCredentials: true,
+    };
+
+    try {
+      const response = await axios.get(BASE_URL + '/logout');
+
+      dispatch({
+        type: LOGOUT,
+        payload: { messages: response.data.msg },
+      });
+    } catch (error) {
+      dispatch({
+        type: LOGOUT,
+        payload: { messages: error.response.data.msg },
+      });
     }
   };
 
@@ -151,12 +172,13 @@ const AuthState = props => {
         user: state.user,
         accessToken: state.accessToken,
         isAuthenticated: state.isAuthenticated,
+        loading: state.loading,
         messages: state.messages,
         register,
         login,
         loadUser,
         requestAccessToken,
-        //logout,
+        logout,
         //clearErrors,
       }}
     >

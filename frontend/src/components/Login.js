@@ -15,14 +15,14 @@ const Login = props => {
     }
 
     if (messages) {
-      console.log('messages:', messages);
       const errorMsg = messages.map(msg => msg).join('\n\n');
 
       // this could be set up to diplay as
       // as a styled alert too.
-      alert(errorMsg);
+      // alert(errorMsg);
+      console.log(errorMsg);
     }
-  }, [messages, isAuthenticated, props.history]);
+  }, [isAuthenticated, props.history]);
 
   const [user, setUser] = useState({
     username: '',
