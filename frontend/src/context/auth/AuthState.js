@@ -15,8 +15,8 @@ import {
   LOGOUT,
   EXTEND_TOKEN_SUCCESS,
   EXTEND_TOKEN_FAIL,
-  SET_ERROR,
-  CLEAR_ERROR,
+  SET_ALERT,
+  CLEAR_ALERTS,
 } from '../types'; // action types to dispatch to reducer
 
 const BASE_URL = 'http://localhost:8000/users';
@@ -26,11 +26,12 @@ const AuthState = props => {
     accessToken: null, // logged in user's current access token
     isAuthenticated: false, // boolean indicating if a user is logged in
     messages: null, // response messages
+    messageType: '',
     user: null, // object with auth user data
     loading: true, // no response yet from api
   };
 
-  // initialize the auth reducer
+  // initialize the auth reducer and access auth state
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   // destructure state
@@ -51,6 +52,7 @@ const AuthState = props => {
       // Dispatch accessToken to state
       dispatch({
         type: EXTEND_TOKEN_SUCCESS,
+        // payload is the new access token
         payload: response.data,
       });
 
@@ -58,10 +60,12 @@ const AuthState = props => {
     } catch (error) {
       dispatch({
         type: EXTEND_TOKEN_FAIL,
-        payload: { messages: error.response.data.msg },
+        // no message to display
+        payload: {
+          messages: null,
+          messageType: null,
+        },
       });
-      // set alert "Not Authorized"
-      // console.log('requestAccessToken ERROR', error.response.data);
     }
   };
 
@@ -82,14 +86,22 @@ const AuthState = props => {
       dispatch({
         type: REGISTER_SUCCESS,
         payload: {
-          token: response.data.accessToken,
+          accessToken: response.data.accessToken,
+          // 'Login successful!
           messages: response.data.msg,
+          messageType: 'success',
         },
       });
       loadUser();
     } catch (error) {
-      // dispatch register fail to reducer and display alert
-      dispatch({ type: REGISTER_FAIL, payload: error.response.data.msg });
+      // dispatch register fail to reducer and display alerts
+      dispatch({
+        type: REGISTER_FAIL,
+        payload: {
+          messages: error.response.data.msg,
+          messageType: 'danger',
+        },
+      });
     }
   };
 
@@ -107,8 +119,9 @@ const AuthState = props => {
       dispatch({
         type: LOGIN_SUCCESS,
         payload: {
-          token: response.data.accessToken,
+          accessToken: response.data.accessToken,
           messages: response.data.msg,
+          messageType: 'success',
         },
       });
 
@@ -116,7 +129,10 @@ const AuthState = props => {
     } catch (error) {
       dispatch({
         type: LOGIN_FAIL,
-        payload: { messages: error.response.data.msg },
+        payload: {
+          messages: error.response.data.msg,
+          messageType: 'danger',
+        },
       });
     }
   };
@@ -139,9 +155,10 @@ const AuthState = props => {
       if (error.response.data.msg === 'Access token expired') {
         requestAccessToken();
       }
+
       dispatch({
         type: LOAD_USER_FAIL,
-        payload: { messages: error.response.data.msg },
+        payload: { messages: null, messageType: null },
       });
     }
   };
@@ -153,19 +170,24 @@ const AuthState = props => {
     };
 
     try {
-      const response = await axios.get(BASE_URL + '/logout');
+      const response = await axios.post(BASE_URL + '/logout/', {
+        user: state.user.id,
+      });
 
       dispatch({
         type: LOGOUT,
-        payload: { messages: response.data.msg },
+        payload: { messages: response.data.msg, messageType: 'success' },
       });
     } catch (error) {
       dispatch({
         type: LOGOUT,
-        payload: { messages: error.response.data.msg },
+        payload: { messages: null, messageType: null },
       });
     }
   };
+
+  // clear alerts
+  const clearAlerts = () => dispatch({ type: CLEAR_ALERTS });
 
   return (
     <AuthContext.Provider
@@ -175,12 +197,13 @@ const AuthState = props => {
         isAuthenticated: state.isAuthenticated,
         loading: state.loading,
         messages: state.messages,
+        messageType: state.messageType,
         register,
         login,
         loadUser,
         requestAccessToken,
         logout,
-        //clearErrors,
+        clearAlerts,
       }}
     >
       {props.children}

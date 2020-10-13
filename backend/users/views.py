@@ -373,7 +373,9 @@ def user_detail(request, pk):
         return response
 
 
-@api_view(['GET'])
+@api_view(['POST'])
+@permission_classes([AllowAny])
+# @authentication_classes([])
 @ensure_csrf_cookie
 def logout(request):
     '''Delete refresh token from the database
@@ -381,10 +383,12 @@ def logout(request):
     # Create response object
     response = Response()
 
-    print(request.user)
+    # id of logged in user from request data
+    logged_in_user = request.data.get('user')
 
     # find the logged in user's refresh token
-    refresh_token = RefreshToken.objects.filter(user=request.user.id).first()
+    refresh_token = RefreshToken.objects.filter(
+        user=logged_in_user).first()
 
     if refresh_token is None:
         response.data = {'msg': ['Not logged in']}
@@ -393,10 +397,6 @@ def logout(request):
 
     # if the token is found, delete it
     refresh_token.delete()
-
-    # remove the refreshtoken and csrftoken cookies
-    response.set_cookie('refreshtoken', '', max_age=.1, domain='localhost')
-    response.delete_cookie('csrftoken', domain='localhost')
 
     response.data = {
         'msg': ['Logout successful. See you next time!']

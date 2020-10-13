@@ -1,26 +1,20 @@
 import React, { useContext, useState, useEffect } from 'react';
 
 import AuthContext from '../context/auth/authContext';
+import AlertContext from '../context/alerts/alertContext';
 
 const Login = props => {
   const authContext = useContext(AuthContext);
+  const alertContext = useContext(AlertContext);
 
-  const { login, isAuthenticated, messages } = authContext;
+  const { login, isAuthenticated } = authContext;
+  const { setAlert } = alertContext;
 
   useEffect(() => {
     // redirect if an authenticated user exists
     if (isAuthenticated) {
       // redirect to the homepage
       props.history.push('/');
-    }
-
-    if (messages) {
-      const errorMsg = messages.map(msg => msg).join('\n\n');
-
-      // this could be set up to diplay as
-      // as a styled alert too.
-      // alert(errorMsg);
-      console.log(errorMsg);
     }
   }, [isAuthenticated, props.history]);
 
@@ -38,7 +32,7 @@ const Login = props => {
     e.preventDefault(); // ignore default form submit action
 
     if (username === '' || password === '') {
-      alert('Please fill in all fields.');
+      setAlert('Please fill in all fields.', 'danger');
     } else {
       login({ username, password });
     }
@@ -47,7 +41,7 @@ const Login = props => {
   return (
     <div className='container'>
       <div className='row'>
-        <div className='col col-6 offset-3'>
+        <div className='col col-12 col-lg-6 offset-lg-3'>
           <h1 className='text-center'>Login</h1>
           <form onSubmit={onSubmit}>
             <div className='form-group'>

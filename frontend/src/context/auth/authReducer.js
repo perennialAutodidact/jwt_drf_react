@@ -8,6 +8,7 @@ import {
   LOGOUT,
   EXTEND_TOKEN_SUCCESS,
   EXTEND_TOKEN_FAIL,
+  CLEAR_ALERTS,
 } from '../types'; // action types
 
 export default (state, action) => {
@@ -20,9 +21,10 @@ export default (state, action) => {
     case LOGIN_SUCCESS:
       return {
         ...state,
-        accessToken: action.payload.token,
+        accessToken: action.payload.accessToken,
         isAuthenticated: true,
         messages: action.payload.messages,
+        messageType: action.payload.messageType,
         loading: false,
       };
     case REGISTER_FAIL:
@@ -36,6 +38,7 @@ export default (state, action) => {
         isAuthenticated: false,
         user: null,
         messages: action.payload.messages,
+        messageType: action.payload.messageType,
         loading: false,
       };
     case LOAD_USER_SUCCESS:
@@ -43,6 +46,8 @@ export default (state, action) => {
         ...state,
         user: action.payload,
         loading: false,
+        messages: null,
+        messageType: null,
       };
     case EXTEND_TOKEN_SUCCESS:
       return {
@@ -50,6 +55,14 @@ export default (state, action) => {
         accessToken: action.payload.accessToken,
         isAuthenticated: true,
         loading: false,
+        messages: null,
+        messageType: null,
+      };
+    case CLEAR_ALERTS:
+      return {
+        ...state,
+        message: null,
+        messageType: null,
       };
   }
 };

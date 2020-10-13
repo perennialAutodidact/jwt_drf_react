@@ -1,14 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 
 import AuthContext from '../context/auth/authContext';
-
+import AlertContext from '../context/alerts/alertContext';
 const Register = props => {
   // initialize auth context
   const authContext = useContext(AuthContext);
-
+  const alertContext = useContext(AlertContext);
   // destructure context items
-  const { register, isAuthenticated, messages } = authContext;
-
+  const { register, isAuthenticated } = authContext;
+  const { setAlert } = alertContext;
   // run effect when error, isAuthenticated or props.history change
   useEffect(() => {
     // redirect if an authenticated user exists
@@ -16,15 +16,7 @@ const Register = props => {
       // redirect to the homepage
       props.history.push('/');
     }
-
-    if (messages) {
-      const errorMsg = messages.map(msg => msg).join('\n\n');
-
-      // this could be set up to diplay as
-      // as a styled alert too.
-      alert(errorMsg);
-    }
-  }, [messages, isAuthenticated, props.history]);
+  }, [isAuthenticated, props.history]);
 
   // setup app-level state to hold form data
   const [userForm, setUser] = useState({
@@ -45,9 +37,9 @@ const Register = props => {
     // if username, email or password are blank
     // or password doesn't match password 2, raise an alert
     if (username === '' || email === '' || password === '') {
-      alert('Please enter all fields');
+      setAlert('Please enter all fields', 'danger');
     } else if (password !== password2) {
-      alert("Passwords don't match");
+      setAlert("Passwords don't match", 'danger');
     } else {
       // if all info is valid, pass the form data to register() from AuthState
       register({

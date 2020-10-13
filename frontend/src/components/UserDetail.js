@@ -12,8 +12,10 @@ const UserDetail = props => {
       <div className='container text-center'>
         {user !== null ? (
           <div className='row'>
-            <h1>{user && user.email}</h1>
-            <div className='col col-12'>Hello</div>
+            <div className='col col-12'>
+              <h1>{user.username}'s account</h1>
+              <h1>{user.email}</h1>
+            </div>
           </div>
         ) : (
           <Spinner />

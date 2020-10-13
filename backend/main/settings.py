@@ -94,10 +94,10 @@ STATIC_URL = '/static/'
 # REST Framework Defaults
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'users.authentication.SafeJWTAuthentication'  # custom authentication class
+        # 'users.authentication.SafeJWTAuthentication'  # custom authentication class
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
+        # 'rest_framework.permissions.IsAuthenticated'
     ]
 }
 
