@@ -8,13 +8,14 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import AuthContext from './context/auth/authContext';
 import AlertContext from './context/alerts/alertContext';
 
-import Register from './components/Register';
-import Alerts from './components/Alerts';
-import Login from './components/Login';
-import Navbar from './components/Navbar';
-import Home from './components/Home';
-import UserDetail from './components/UserDetail';
-import PrivateRoute from './components/PrivateRoute';
+import Register from './components/auth/Register';
+import Login from './components/auth/Login';
+import PrivateRoute from './components/auth/PrivateRoute';
+
+import Alerts from './components/layout/Alerts';
+import Navbar from './components/layout/Navbar';
+import Home from './components/pages/Home';
+import UserDetail from './components/pages/UserDetail';
 
 const App = () => {
   const authContext = useContext(AuthContext);

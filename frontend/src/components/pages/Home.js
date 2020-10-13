@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 
-import AuthContext from '../context/auth/authContext';
+import AuthContext from '../../context/auth/authContext';
 
-import Spinner from './Spinner';
+import Spinner from '../layout/Spinner';
 
 const Home = () => {
   const authContext = useContext(AuthContext);

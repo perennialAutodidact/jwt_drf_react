@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
-import AuthContext from '../context/auth/authContext';
+import AuthContext from '../../context/auth/authContext';
 
-import Spinner from './Spinner';
+import Spinner from '../layout/Spinner';
 const UserDetail = props => {
   const authContext = useContext(AuthContext);
 
