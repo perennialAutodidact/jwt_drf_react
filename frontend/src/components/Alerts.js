@@ -17,7 +17,7 @@ const Alerts = () => {
   }, [messages]);
 
   return (
-    <div className='container text-center alerts'>
+    <div className='container text-center alerts w-75'>
       <div className='row'>
         {alertContext.alerts.length > 0 &&
           alertContext.alerts.map(alert => (

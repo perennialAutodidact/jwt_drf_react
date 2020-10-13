@@ -15,7 +15,7 @@ a:hover {
 .alerts {
   position: absolute;
   left: 50%;
-  max-width: 50%;
+  /* max-width: 50%; */
   top: 15px;
   transform: translateX(-50%);
   z-index: 1;
