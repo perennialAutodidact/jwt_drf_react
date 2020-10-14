@@ -11,7 +11,10 @@ const Home = () => {
 
   return (
     <div className='container text-center'>
-      {isAuthenticated !== null && !loading ? (
+      {/* if the page is finished loading, display welcome!
+      Otherwise, display spinner */}
+      {!loading ? (
+        // if a user exists, display their username
         <h1 className='text-center'>Welcome{user && ', ' + user.username}!</h1>
       ) : (
         <Spinner />

@@ -29,17 +29,6 @@ const App = () => {
     requestAccessToken();
   }, []); // empty [] ensures this only runs once when App.js is mounted
 
-  // useEffect(() => {
-  //   if (messages) {
-  //     // console.log('messages:', messages);
-  //     const errorMsg = messages.map(msg => msg).join('\n\n');
-
-  //     // this could be set up to diplay as
-  //     // as a styled alert too.
-  //     setAlert(errorMsg, 'danger');
-  //   }
-  // }, [messages]); // update messages if messages change in state
-
   return (
     <div className='App'>
       <Router>

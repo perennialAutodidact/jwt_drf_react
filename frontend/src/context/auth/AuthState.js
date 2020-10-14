@@ -148,10 +148,13 @@ const AuthState = props => {
       const response = await axios.get(BASE_URL + '/auth/');
 
       dispatch({
+        // payload is the user object
         type: LOAD_USER_SUCCESS,
         payload: response.data.user,
       });
     } catch (error) {
+      // if the access token is expired when the request is made,
+      // use the refresh token to request a new one
       if (error.response.data.msg === 'Access token expired') {
         requestAccessToken();
       }
@@ -192,6 +195,7 @@ const AuthState = props => {
   return (
     <AuthContext.Provider
       value={{
+        // provide auth state items and methods to app
         user: state.user,
         accessToken: state.accessToken,
         isAuthenticated: state.isAuthenticated,

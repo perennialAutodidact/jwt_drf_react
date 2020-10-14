@@ -3,7 +3,6 @@ import jwt
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.http import HttpResponse
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -375,7 +374,6 @@ def user_detail(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-# @authentication_classes([])
 @ensure_csrf_cookie
 def logout(request):
     '''Delete refresh token from the database
@@ -397,6 +395,9 @@ def logout(request):
 
     # if the token is found, delete it
     refresh_token.delete()
+
+    # delete the refresh cookie
+    response.delete_cookie('refreshtoken')
 
     response.data = {
         'msg': ['Logout successful. See you next time!']

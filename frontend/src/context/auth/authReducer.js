@@ -11,6 +11,8 @@ import {
   CLEAR_ALERTS,
 } from '../types'; // action types
 
+// depending on the type passed to dispatch() in AuthState,
+// change state accordingly
 export default (state, action) => {
   switch (action.type) {
     default:

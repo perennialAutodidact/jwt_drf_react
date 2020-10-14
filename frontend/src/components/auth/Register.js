@@ -6,10 +6,12 @@ const Register = props => {
   // initialize auth context
   const authContext = useContext(AuthContext);
   const alertContext = useContext(AlertContext);
+
   // destructure context items
   const { register, isAuthenticated } = authContext;
   const { setAlert } = alertContext;
-  // run effect when error, isAuthenticated or props.history change
+
+  // run effect when isAuthenticated or props.history change
   useEffect(() => {
     // redirect if an authenticated user exists
     if (isAuthenticated) {
@@ -18,7 +20,7 @@ const Register = props => {
     }
   }, [isAuthenticated, props.history]);
 
-  // setup app-level state to hold form data
+  // setup component-level state to hold form data
   const [userForm, setUser] = useState({
     username: '',
     email: '',
@@ -28,9 +30,11 @@ const Register = props => {
 
   const { username, email, password, password2 } = userForm;
 
+  // add new form changes to state
   const onChange = e =>
     setUser({ ...userForm, [e.target.name]: e.target.value });
 
+  // call when form is submitted
   const onSubmit = e => {
     e.preventDefault(); // ignore default form submit action
 

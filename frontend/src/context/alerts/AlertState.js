@@ -13,16 +13,19 @@ const AlertState = props => {
 
   // Set Alert
   const setAlert = (msg, type, timeout = 3000) => {
+    // create a unique identifier for each alert
     const id = uuidv4();
 
     dispatch({ type: SET_ALERT, payload: { msg, type, id } });
 
+    // remove alerts after a few seconds
     setTimeout(() => dispatch({ type: CLEAR_ALERTS, payload: id }), timeout);
   };
 
   return (
     <AlertContext.Provider
       value={{
+        // provide alerts to app
         alerts: state,
         setAlert,
       }}

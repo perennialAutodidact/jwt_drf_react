@@ -10,6 +10,7 @@ const Login = props => {
   const { login, isAuthenticated } = authContext;
   const { setAlert } = alertContext;
 
+  // call useEffect when isAuthenticated or props.history are changed
   useEffect(() => {
     // redirect if an authenticated user exists
     if (isAuthenticated) {
@@ -18,6 +19,7 @@ const Login = props => {
     }
   }, [isAuthenticated, props.history]);
 
+  // set up component-level state to hold form data
   const [user, setUser] = useState({
     username: '',
     email: '',
@@ -26,8 +28,10 @@ const Login = props => {
 
   const { username, password } = user;
 
+  // add new form changes to state
   const onChange = e => setUser({ ...user, [e.target.name]: e.target.value });
 
+  // call when form is submitted
   const onSubmit = e => {
     e.preventDefault(); // ignore default form submit action
 
