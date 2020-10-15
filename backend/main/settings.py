@@ -91,17 +91,6 @@ STATIC_URL = '/static/'
 
 # add everything from here to the bottom
 
-# REST Framework Defaults
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'users.authentication.SafeJWTAuthentication'  # custom authentication class
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticated'
-    ]
-}
-
-
 # Use custom user model for authentication
 AUTH_USER_MODEL = 'users.User'
 
