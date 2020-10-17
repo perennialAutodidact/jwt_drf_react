@@ -94,6 +94,13 @@ STATIC_URL = '/static/'
 # Use custom user model for authentication
 AUTH_USER_MODEL = 'users.User'
 
+# define default authentication method in DRF
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'users.authentication.SafeJWTAuthentication'
+    ]
+}
+
 # Secret for encoding User refresh tokens
 REFRESH_TOKEN_SECRET = decouple.config('DJANGO_REFRESH_TOKEN_SECRET')
 

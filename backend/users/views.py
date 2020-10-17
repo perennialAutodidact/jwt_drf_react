@@ -374,6 +374,7 @@ def user_detail(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 @ensure_csrf_cookie
 def logout(request):
     '''Delete refresh token from the database
